@@ -385,26 +385,9 @@ navbar_html = f"""
 </div>
 <div class="cb-nav-dropdown">
 {get_nav_item("Teams", "Teams ▾")}
-<div class="cb-dropdown-menu" style="max-height: 420px; overflow-y: auto;">
-<a href="?page=Teams&view=all" target="_self"><strong>All International Teams Overview</strong></a>
-<a href="?page=Teams&team=India" target="_self">India</a>
-<a href="?page=Teams&team=Australia" target="_self">Australia</a>
-<a href="?page=Teams&team=England" target="_self">England</a>
-<a href="?page=Teams&team=South+Africa" target="_self">South Africa</a>
-<a href="?page=Teams&team=Pakistan" target="_self">Pakistan</a>
-<a href="?page=Teams&team=New+Zealand" target="_self">New Zealand</a>
-<a href="?page=Teams&team=Sri+Lanka" target="_self">Sri Lanka</a>
-<a href="?page=Teams&team=Bangladesh" target="_self">Bangladesh</a>
-<a href="?page=Teams&team=Afghanistan" target="_self">Afghanistan</a>
-<a href="?page=Teams&team=West+Indies" target="_self">West Indies</a>
-<a href="?page=Teams&team=Zimbabwe" target="_self">Zimbabwe</a>
-<a href="?page=Teams&team=Ireland" target="_self">Ireland</a>
-<a href="?page=Teams&team=Netherlands" target="_self">Netherlands</a>
-<a href="?page=Teams&team=Scotland" target="_self">Scotland</a>
-<a href="?page=Teams&team=United+States+of+America" target="_self">USA</a>
-<a href="?page=Teams&team=Namibia" target="_self">Namibia</a>
-<a href="?page=Teams&team=Nepal" target="_self">Nepal</a>
-<a href="?page=Teams&team=United+Arab+Emirates" target="_self">UAE</a>
+<div class="cb-dropdown-menu">
+<a href="?page=Teams&view=all" target="_self">All International Teams Overview</a>
+<a href="?page=Teams&view=single" target="_self">Individual Team & Player Stats</a>
 </div>
 </div>
 <div class="cb-nav-dropdown">
