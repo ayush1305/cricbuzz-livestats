@@ -142,13 +142,26 @@ def test_connection(db_url: str) -> Tuple[bool, str]:
         return False, f"Connection failed: {str(e)}"
 
 
+def _sanitize_params(params: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if not params:
+        return params
+    clean = {}
+    for k, v in params.items():
+        if hasattr(v, "item"):
+            clean[k] = v.item()
+        else:
+            clean[k] = v
+    return clean
+
+
 def execute_query(sql_query: str, params: Optional[Dict[str, Any]] = None, db_url: Optional[str] = None) -> pd.DataFrame:
     """
     Executes a SELECT query and returns the results as a Pandas DataFrame.
     """
     engine = get_engine(db_url)
+    clean_p = _sanitize_params(params)
     with engine.connect() as conn:
-        df = pd.read_sql_query(text(sql_query), conn, params=params)
+        df = pd.read_sql_query(text(sql_query), conn, params=clean_p)
     return df
 
 
@@ -158,8 +171,9 @@ def execute_statement(sql_stmt: str, params: Optional[Dict[str, Any]] = None, db
     Returns rows affected.
     """
     engine = get_engine(db_url)
+    clean_p = _sanitize_params(params)
     with engine.begin() as conn:
-        result = conn.execute(text(sql_stmt), params or {})
+        result = conn.execute(text(sql_stmt), clean_p or {})
         return result.rowcount
 
 

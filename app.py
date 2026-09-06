@@ -464,6 +464,7 @@ from pages_ui.sql_analytics import render_sql_analytics
 from pages_ui.crud_operations import render_crud_operations
 from pages_ui.db_settings import render_db_settings
 from pages_ui.home import render_home
+from pages_ui.teams_squads import render_teams_and_squads
 
 # 1. LIVE SCORES
 if current_page == "Live Scores":
@@ -501,19 +502,9 @@ elif current_page == "Archives":
 elif current_page == "Rankings":
     render_top_stats()
 
-# 5. TEAMS ▾ (Official International Squads & Rosters)
+# 5. TEAMS ▾ (Official International Squads & Rosters with Player Stats)
 elif current_page == "Teams":
-    st.markdown("### 🌍 International Cricket Teams & Squads")
-    df_teams = execute_query("SELECT team_id, team_name, team_code, country FROM teams ORDER BY team_name ASC")
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        st.dataframe(df_teams, use_container_width=True, hide_index=True)
-    with col2:
-        sel_t = st.selectbox("Select Team to View Squad:", df_teams["team_name"])
-        tid = df_teams[df_teams["team_name"] == sel_t]["team_id"].values[0]
-        df_pl = execute_query("SELECT player_id, full_name, playing_role, batting_style, bowling_style FROM players WHERE team_id = :tid", {"tid": tid})
-        st.markdown(f"#### Squad for {sel_t} ({len(df_pl)} Players)")
-        st.dataframe(df_pl, use_container_width=True, hide_index=True)
+    render_teams_and_squads()
 
 # 6. SERIES ▾
 elif current_page == "Series":
