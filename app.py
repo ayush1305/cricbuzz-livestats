@@ -1,8 +1,6 @@
 """
-Cricbuzz LiveStats - Pixel-Perfect Cricbuzz Header & Navigation
-Exact recreation of official Cricbuzz navbar:
-cricbuzz logo | Live Scores | Schedule | Archives | News | Series | Teams | Videos | Rankings | More
-(Go Premium removed as requested)
+Cricbuzz LiveStats - Official Cricbuzz Header & Navigation
+cricbuzz logo | News ▾ | Series ▾ | Teams ▾ | Rankings ▾ | More ▾
 """
 
 import os
@@ -40,16 +38,16 @@ has_live_matches = bool(recent_m)
 # Handle query parameters for seamless link navigation
 query_page = st.query_params.get("page")
 if query_page:
-    if query_page == "Schedule" or (query_page == "Live Scores" and not has_live_matches):
-        query_page = "Archives"
+    if query_page in ["Schedule", "Archives", "Videos"] or (query_page == "Live Scores" and not has_live_matches):
+        query_page = "Teams"
     st.session_state["nav_page"] = query_page
 elif "nav_page" not in st.session_state:
-    st.session_state["nav_page"] = "Archives"
+    st.session_state["nav_page"] = "Teams"
 
-current_page = st.session_state.get("nav_page", "Archives")
-if current_page == "Schedule" or (current_page == "Live Scores" and not has_live_matches):
-    current_page = "Archives"
-    st.session_state["nav_page"] = "Archives"
+current_page = st.session_state.get("nav_page", "Teams")
+if current_page in ["Schedule", "Archives", "Videos"] or (current_page == "Live Scores" and not has_live_matches):
+    current_page = "Teams"
+    st.session_state["nav_page"] = "Teams"
 
 # Cricbuzz Official Stylesheet
 st.markdown(f"""
@@ -368,11 +366,10 @@ live_nav_item = get_nav_item("Live Scores", "Live Scores") if has_live_matches e
 navbar_html = f"""
 <div class="cb-header-bar">
     <div class="cb-nav-menu">
-        <a href="?page=Archives" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
+        <a href="?page=Teams" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
             {logo_img_tag}
         </a>
         {live_nav_item}
-        {get_nav_item("Archives", "Archives")}
         <div class="cb-nav-dropdown">
             {get_nav_item("News", "News ▾")}
             <div class="cb-dropdown-menu">
@@ -415,14 +412,6 @@ navbar_html = f"""
             </div>
         </div>
         <div class="cb-nav-dropdown">
-            {get_nav_item("Videos", "Videos ▾")}
-            <div class="cb-dropdown-menu">
-                <a href="?page=Videos" target="_self">Match Highlights</a>
-                <a href="?page=Videos" target="_self">Cricbuzz Comm Box</a>
-                <a href="?page=Videos" target="_self">Post-Match Pressers</a>
-            </div>
-        </div>
-        <div class="cb-nav-dropdown">
             {get_nav_item("Rankings", "Rankings ▾")}
             <div class="cb-dropdown-menu">
                 <a href="?page=Rankings" target="_self">ICC Rankings - Men</a>
@@ -434,9 +423,9 @@ navbar_html = f"""
         <div class="cb-nav-dropdown">
             {get_nav_item("More", "More ▾")}
             <div class="cb-dropdown-menu">
+                <a href="?page=More&sub=sql" target="_self">25 SQL Practice Queries</a>
                 <a href="?page=More&sub=crud" target="_self">CRUD Operations (Manage Data)</a>
                 <a href="?page=More&sub=connect" target="_self">Connect SQL Database</a>
-                <a href="?page=Archives" target="_self">25 SQL Practice Queries</a>
                 <a href="?page=More&sub=docs" target="_self">Architecture & API Docs</a>
             </div>
         </div>
@@ -490,63 +479,68 @@ from pages_ui.teams_squads import render_teams_and_squads
 if current_page == "Live Scores" and has_live_matches:
     render_live_matches()
 
-# 2. ARCHIVES (Houses 25 SQL Practice Questions & Analytics Engine)
-elif current_page in ["Archives", "Live Scores"]:
-    st.markdown("""
-    <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-        <h4 style="margin: 0; color: #009270; font-weight: 800;">Cricket Archives: 25 SQL Analytics Questions & Custom Console</h4>
-        <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">
-            Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    render_sql_analytics()
-
-# 4. RANKINGS ▾ (Top Player Stats & Leaderboards)
-elif current_page == "Rankings":
-    render_top_stats()
-
-# 5. TEAMS ▾ (Official International Squads & Rosters with Player Stats)
+# 2. TEAMS ▾ (Official International Squads & Rosters with Player Stats)
 elif current_page == "Teams":
     render_teams_and_squads()
 
-# 6. SERIES ▾
+# 3. RANKINGS ▾ (Top Player Stats & Leaderboards)
+elif current_page == "Rankings":
+    render_top_stats()
+
+# 4. SERIES ▾
 elif current_page == "Series":
     st.markdown("### Cricket Series & Tournaments")
     df_ser = execute_query("SELECT series_id, series_name, host_country, match_type, start_date, total_matches FROM series ORDER BY start_date DESC")
     st.dataframe(df_ser, use_container_width=True, hide_index=True)
 
-# 7. NEWS ▾
+# 5. NEWS ▾
 elif current_page == "News":
     st.markdown("### Latest Cricket News & Match Reports")
     st.info("Live updates: Pakistan tour of England 2026 Test series underway; Caribbean Premier League action in progress.")
 
-# 8. VIDEOS ▾
-elif current_page == "Videos":
-    st.markdown("### Match Highlights & Video Analysis")
-    st.info("Highlights and post-match conferences are synchronized with Cricbuzz video feeds.")
-
-# 9. MORE ▾ (Houses CRUD Operations, Connect SQL Database, and Project Documentation)
+# 6. MORE ▾ (Houses 25 SQL Practice Queries, CRUD Operations, Connect SQL Database, and Project Documentation)
 elif current_page == "More":
     st.markdown("### Cricbuzz Management & Database Operations")
     
     sub_param = st.query_params.get("sub", "").lower()
     default_idx = 0
-    if "connect" in sub_param or "sql" in sub_param:
+    if "sql" in sub_param or "archive" in sub_param:
+        default_idx = 0
+    elif "crud" in sub_param:
         default_idx = 1
-    elif "doc" in sub_param:
+    elif "connect" in sub_param:
         default_idx = 2
+    elif "doc" in sub_param:
+        default_idx = 3
 
     sub_option = st.radio(
         "Select Operation:",
-        ["CRUD Operations (Manage Players & Matches)", "Connect SQL Database", "Project Documentation & Architecture"],
+        [
+            "25 SQL Practice Queries & Custom Console",
+            "CRUD Operations (Manage Players & Matches)",
+            "Connect SQL Database",
+            "Project Documentation & Architecture"
+        ],
         index=default_idx,
         horizontal=True
     )
-    if "CRUD" in sub_option:
+    if "SQL" in sub_option:
+        st.markdown("""
+        <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <h4 style="margin: 0; color: #009270; font-weight: 800;">25 SQL Analytics Questions & Custom Console</h4>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">
+                Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        render_sql_analytics()
+    elif "CRUD" in sub_option:
         render_crud_operations()
     elif "Connect" in sub_option:
         render_db_settings()
     else:
         render_home()
+
+else:
+    render_teams_and_squads()
 
