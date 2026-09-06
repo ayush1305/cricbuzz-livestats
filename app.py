@@ -28,18 +28,28 @@ if os.path.exists(logo_path):
 else:
     logo_b64 = ""
 
+# Check live match API availability
+api_client = CricbuzzAPIClient()
+try:
+    recent_m = api_client.get_live_and_recent_matches()
+except Exception:
+    recent_m = []
+
+has_live_matches = bool(recent_m)
+
 # Handle query parameters for seamless link navigation
 query_page = st.query_params.get("page")
 if query_page:
-    if query_page == "Schedule":
+    if query_page == "Schedule" or (query_page == "Live Scores" and not has_live_matches):
         query_page = "Archives"
     st.session_state["nav_page"] = query_page
 elif "nav_page" not in st.session_state:
     st.session_state["nav_page"] = "Archives"
 
 current_page = st.session_state.get("nav_page", "Archives")
-if current_page == "Schedule":
+if current_page == "Schedule" or (current_page == "Live Scores" and not has_live_matches):
     current_page = "Archives"
+    st.session_state["nav_page"] = "Archives"
 
 # Cricbuzz Official Stylesheet
 st.markdown(f"""
@@ -353,13 +363,15 @@ def get_nav_item(name, label):
 
 logo_img_tag = f'<img src="data:image/png;base64,{logo_b64}" height="30" style="vertical-align: middle;">' if logo_b64 else '<span style="font-size: 22px; font-weight: 900; color: white;">cricbuzz</span>'
 
+live_nav_item = get_nav_item("Live Scores", "Live Scores") if has_live_matches else ""
+
 navbar_html = f"""
 <div class="cb-header-bar">
     <div class="cb-nav-menu">
         <a href="?page=Archives" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
             {logo_img_tag}
         </a>
-        {get_nav_item("Live Scores", "Live Scores")}
+        {live_nav_item}
         {get_nav_item("Archives", "Archives")}
         <div class="cb-nav-dropdown">
             {get_nav_item("News", "News ▾")}
@@ -442,28 +454,25 @@ navbar_html = f"""
 st.markdown(navbar_html, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# EXACT CRICBUZZ SUBBAR (MATCHES | Match 1 | Match 2 | Match 3 | ALL ▾)
+# EXACT CRICBUZZ SUBBAR (MATCHES / SERIES TICKER)
 # ------------------------------------------------------------------------------
-api_client = CricbuzzAPIClient()
-try:
-    recent_m = api_client.get_live_and_recent_matches()
-except Exception:
-    recent_m = []
-
-ticker_items_html = ""
-for m in recent_m[:5]:
-    st_text = m.get("status", "")[:26]
-    ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
-
-if not ticker_items_html:
-    ticker_items_html = (
-        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RSA vs ZIM</strong> - <span class="cb-ticker-status">Need 16...</span></a>'
-        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>BANW vs SLW</strong> - <span class="cb-ticker-status">SLW opt to bowl</span></a>'
-        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RDD vs ADF</strong> - <span class="cb-ticker-status">ADF opt to bowl</span></a>'
-        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>GAWW vs JEW</strong> - <span class="cb-ticker-status">Preview</span></a>'
-    )
-
-subbar_html = f'<div class="cb-subbar"><span class="cb-matches-tag">MATCHES</span>{ticker_items_html}<span class="cb-all-dropdown">ALL ▾</span></div>'
+if has_live_matches:
+    ticker_items_html = ""
+    for m in recent_m[:5]:
+        st_text = m.get("status", "")[:26]
+        ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
+    subbar_html = f'<div class="cb-subbar"><span class="cb-matches-tag">MATCHES</span>{ticker_items_html}<a href="?page=Live+Scores" target="_self" class="cb-all-dropdown">ALL ▾</a></div>'
+else:
+    subbar_html = """
+    <div class="cb-subbar">
+        <span class="cb-matches-tag">SERIES</span>
+        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>PAK vs ENG</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">Test Series</span></a>
+        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IREW vs ENGW</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">ODI Tour</span></a>
+        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>County Div 1</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">First Class</span></a>
+        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IPL & Leagues</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">T20 Calendar</span></a>
+        <a href="?page=Series" target="_self" class="cb-all-dropdown">ALL SERIES ▾</a>
+    </div>
+    """
 st.markdown(subbar_html, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -478,11 +487,11 @@ from pages_ui.home import render_home
 from pages_ui.teams_squads import render_teams_and_squads
 
 # 1. LIVE SCORES
-if current_page == "Live Scores":
+if current_page == "Live Scores" and has_live_matches:
     render_live_matches()
 
 # 2. ARCHIVES (Houses 25 SQL Practice Questions & Analytics Engine)
-elif current_page == "Archives":
+elif current_page in ["Archives", "Live Scores"]:
     st.markdown("""
     <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
         <h4 style="margin: 0; color: #009270; font-weight: 800;">Cricket Archives: 25 SQL Analytics Questions & Custom Console</h4>

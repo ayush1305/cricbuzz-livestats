@@ -33,7 +33,7 @@ def get_db_fallback_matches() -> List[Dict[str, Any]]:
     JOIN teams t2 ON m.team2_id = t2.team_id
     JOIN venues v ON m.venue_id = v.venue_id
     LEFT JOIN series s ON m.series_id = s.series_id
-    LEFT JOIN teams tw ON m.winner_id = tw.team_id
+    WHERE m.match_id IN (SELECT DISTINCT match_id FROM player_match_batting)
     ORDER BY m.match_date DESC
     LIMIT 6;
     """
