@@ -24,6 +24,29 @@ def render_live_matches():
     </div>
     """, unsafe_allow_html=True)
 
+    TEAM_FLAGS = {
+        "IND": "🇮🇳", "INDIA": "🇮🇳",
+        "RSA": "🇿🇦", "SA": "🇿🇦", "SOUTH AFRICA": "🇿🇦",
+        "ZIM": "🇿🇼", "ZIMBABWE": "🇿🇼",
+        "BAN": "🇧🇩", "BANW": "🇧🇩", "BANGLADESH": "🇧🇩",
+        "SL": "🇱🇰", "SLW": "🇱🇰", "SRI LANKA": "🇱🇰",
+        "AUS": "🇦🇺", "AUSW": "🇦🇺", "AUSTRALIA": "🇦🇺",
+        "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "ENGW": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "ENGLAND": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        "PAK": "🇵🇰", "PAKW": "🇵🇰", "PAKISTAN": "🇵🇰",
+        "NZ": "🇳🇿", "NZW": "🇳🇿", "NEW ZEALAND": "🇳🇿",
+        "WI": "🌴", "WIW": "🌴", "WEST INDIES": "🌴",
+        "AFG": "🇦🇫", "AFGHANISTAN": "🇦🇫",
+        "IRE": "🇮🇪", "IRELAND": "🇮🇪",
+        "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "SCOTLAND": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+        "NED": "🇳🇱", "NETHERLANDS": "🇳🇱",
+        "NAM": "🇳🇦", "NAMIBIA": "🇳🇦",
+        "USA": "🇺🇸", "CAN": "🇨🇦", "NEP": "🇳🇵", "OMA": "🇴🇲", "UAE": "🇦🇪"
+    }
+
+    def get_team_flag(code_str):
+        c = str(code_str).upper().strip()
+        return TEAM_FLAGS.get(c, "🏏")
+
     # Render Match Cards Grid (3 cards per row like Cricbuzz)
     cols = st.columns(3)
     for idx, m in enumerate(matches[:6]):
@@ -31,29 +54,46 @@ def render_live_matches():
         with col:
             t1 = m.get("team1", {})
             t2 = m.get("team2", {})
+            t1_name = t1.get('code', t1.get('name', 'T1'))
+            t2_name = t2.get('code', t2.get('name', 'T2'))
             t1_score = t1.get("scores", ["-"])[0]
             t2_score = t2.get("scores", ["-"])[0]
+            t1_flag = get_team_flag(t1_name)
+            t2_flag = get_team_flag(t2_name)
             status_txt = m.get("status", "Match in Progress")
             series_name = m.get("series", "International Series")
             m_format = m.get("format", "T20I")
 
-            # Card Container
+            # Cricbuzz status styling: blue for match results, red for live/target
+            st_lower = status_txt.lower()
+            if any(w in st_lower for w in ["won by", "won the", "tied", "drawn", "complete"]):
+                status_color = "#1866db"
+            else:
+                status_color = "#cb202d"
+
+            # Authentic Cricbuzz Match Card
             st.markdown(f"""
             <div class="cb-match-card">
-                <div class="cb-card-header">
-                    <span>{series_name[:32]}</span>
-                    <span class="cb-format-pill">{m_format}</span>
+                <div style="padding: 12px 14px 10px 14px;">
+                    <div class="cb-card-header">
+                        <span title="{series_name}">{series_name[:28]}</span>
+                        <span class="cb-format-pill">{m_format}</span>
+                    </div>
+                    <div class="cb-team-row">
+                        <span>{t1_flag} {t1_name}</span>
+                        <span class="cb-team-score">{t1_score}</span>
+                    </div>
+                    <div class="cb-team-row">
+                        <span>{t2_flag} {t2_name}</span>
+                        <span class="cb-team-score">{t2_score}</span>
+                    </div>
+                    <div class="cb-status-text" style="color: {status_color};">
+                        {status_txt}
+                    </div>
                 </div>
-                <div class="cb-team-row">
-                    <span>🏏 {t1.get('code', t1.get('name', 'T1'))}</span>
-                    <span class="cb-team-score">{t1_score}</span>
-                </div>
-                <div class="cb-team-row">
-                    <span>🏏 {t2.get('code', t2.get('name', 'T2'))}</span>
-                    <span class="cb-team-score">{t2_score}</span>
-                </div>
-                <div class="cb-status-text">
-                    {status_txt}
+                <div class="cb-card-footer">
+                    <a href="?page=Rankings" target="_self">POINTS TABLE</a>
+                    <a href="?page=Schedule" target="_self">SCHEDULE</a>
                 </div>
             </div>
             """, unsafe_allow_html=True)
