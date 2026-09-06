@@ -405,7 +405,6 @@ navbar_html = f"""
 <a href="?page=More&sub=sql" target="_self">25 SQL Practice Queries</a>
 <a href="?page=More&sub=crud" target="_self">CRUD Operations (Manage Data)</a>
 <a href="?page=More&sub=connect" target="_self">Connect SQL Database</a>
-<a href="?page=More&sub=docs" target="_self">Architecture & API Docs</a>
 </div>
 </div>
 </div>
@@ -450,7 +449,6 @@ from pages_ui.top_stats import render_top_stats
 from pages_ui.sql_analytics import render_sql_analytics
 from pages_ui.crud_operations import render_crud_operations
 from pages_ui.db_settings import render_db_settings
-from pages_ui.home import render_home
 from pages_ui.teams_squads import render_teams_and_squads
 
 # 1. LIVE SCORES
@@ -476,7 +474,7 @@ elif current_page == "News":
     st.markdown("### Latest Cricket News & Match Reports")
     st.info("Live updates: Pakistan tour of England 2026 Test series underway; Caribbean Premier League action in progress.")
 
-# 6. MORE ▾ (Houses 25 SQL Practice Queries, CRUD Operations, Connect SQL Database, and Project Documentation)
+# 6. MORE ▾ (Houses 25 SQL Practice Queries, CRUD Operations, Connect SQL Database)
 elif current_page == "More":
     st.markdown("### Cricbuzz Management & Database Operations")
     
@@ -486,18 +484,15 @@ elif current_page == "More":
         default_idx = 0
     elif "crud" in sub_param:
         default_idx = 1
-    elif "connect" in sub_param:
+    elif "connect" in sub_param or "doc" in sub_param:
         default_idx = 2
-    elif "doc" in sub_param:
-        default_idx = 3
 
     sub_option = st.radio(
         "Select Operation:",
         [
             "25 SQL Practice Queries & Custom Console",
             "CRUD Operations (Manage Players & Matches)",
-            "Connect SQL Database",
-            "Project Documentation & Architecture"
+            "Connect SQL Database"
         ],
         index=default_idx,
         horizontal=True
@@ -507,10 +502,8 @@ elif current_page == "More":
         render_sql_analytics()
     elif "CRUD" in sub_option:
         render_crud_operations()
-    elif "Connect" in sub_option:
-        render_db_settings()
     else:
-        render_home()
+        render_db_settings()
 
 else:
     render_teams_and_squads()
