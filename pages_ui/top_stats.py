@@ -88,7 +88,7 @@ def render_top_stats():
                 orientation="h",
                 color_continuous_scale="Viridis",
                 text="wickets_taken",
-                title=f"🎯 Leading Wicket Takers ({format_filter})",
+                title=f"Leading Wicket Takers ({format_filter})",
                 labels={"wickets_taken": "Total Wickets", "bowler_name": "Bowler", "economy_rate": "Economy"}
             )
             fig.update_layout(
@@ -138,7 +138,7 @@ def render_top_stats():
                 text="player_name",
                 size="allround_index",
                 color="country",
-                title="⚖️ Runs vs Wickets Matrix (All-Rounders)",
+                title="Runs vs Wickets Matrix (All-Rounders)",
                 labels={"total_runs": "Total Career Runs", "wickets_taken": "Total Wickets"}
             )
             fig.update_traces(textposition="top center")

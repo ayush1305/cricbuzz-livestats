@@ -21,7 +21,7 @@ def create_top_run_scorers_chart(df: pd.DataFrame) -> go.Figure:
         color="total_runs",
         color_continuous_scale=["#bbf7d0", "#009270", "#005a44"],
         text="total_runs",
-        title="🏏 Top Run Scorers",
+        title="Top Run Scorers",
         labels={"total_runs": "Total Runs", "player_name": "Player"}
     )
     fig.update_layout(
@@ -47,7 +47,7 @@ def create_toss_win_chart(df: pd.DataFrame) -> go.Figure:
         names="toss_decision",
         values="toss_winner_won_match",
         hole=0.45,
-        title="🎯 Match Wins by Toss Decision (Bat vs Bowl)",
+        title="Match Wins by Toss Decision (Bat vs Bowl)",
         color_discrete_sequence=["#009270", "#0284c7"]
     )
     fig.update_layout(
@@ -79,7 +79,7 @@ def create_player_form_trend_chart(df: pd.DataFrame) -> go.Figure:
     ))
     fig.update_layout(
         barmode="group",
-        title="⚡ Player Form Momentum: Last 5 vs Last 10 Matches",
+        title="Player Form Momentum: Last 5 vs Last 10 Matches",
         xaxis_title="Player",
         yaxis_title="Batting Average",
         template="plotly_white",
@@ -104,7 +104,7 @@ def create_bowler_economy_chart(df: pd.DataFrame) -> go.Figure:
         size="matches_bowled",
         color="overall_economy_rate",
         color_continuous_scale="Tealgrn",
-        title="🎯 Limited-Overs Economy Rate vs Wickets",
+        title="Limited-Overs Economy Rate vs Wickets",
         labels={"overall_economy_rate": "Economy Rate", "total_wickets": "Total Wickets"}
     )
     fig.update_traces(textposition="top center")
@@ -140,7 +140,7 @@ def create_head_to_head_chart(df: pd.DataFrame) -> go.Figure:
     ))
     fig.update_layout(
         barmode="stack",
-        title="⚔️ Head-to-Head Win Distribution",
+        title="Head-to-Head Win Distribution",
         xaxis_title="Rivalry",
         yaxis_title="Total Matches Won",
         template="plotly_white",

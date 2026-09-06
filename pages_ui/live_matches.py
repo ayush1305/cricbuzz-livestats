@@ -24,28 +24,6 @@ def render_live_matches():
     </div>
     """, unsafe_allow_html=True)
 
-    TEAM_FLAGS = {
-        "IND": "🇮🇳", "INDIA": "🇮🇳",
-        "RSA": "🇿🇦", "SA": "🇿🇦", "SOUTH AFRICA": "🇿🇦",
-        "ZIM": "🇿🇼", "ZIMBABWE": "🇿🇼",
-        "BAN": "🇧🇩", "BANW": "🇧🇩", "BANGLADESH": "🇧🇩",
-        "SL": "🇱🇰", "SLW": "🇱🇰", "SRI LANKA": "🇱🇰",
-        "AUS": "🇦🇺", "AUSW": "🇦🇺", "AUSTRALIA": "🇦🇺",
-        "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "ENGW": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "ENGLAND": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-        "PAK": "🇵🇰", "PAKW": "🇵🇰", "PAKISTAN": "🇵🇰",
-        "NZ": "🇳🇿", "NZW": "🇳🇿", "NEW ZEALAND": "🇳🇿",
-        "WI": "🌴", "WIW": "🌴", "WEST INDIES": "🌴",
-        "AFG": "🇦🇫", "AFGHANISTAN": "🇦🇫",
-        "IRE": "🇮🇪", "IRELAND": "🇮🇪",
-        "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "SCOTLAND": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
-        "NED": "🇳🇱", "NETHERLANDS": "🇳🇱",
-        "NAM": "🇳🇦", "NAMIBIA": "🇳🇦",
-        "USA": "🇺🇸", "CAN": "🇨🇦", "NEP": "🇳🇵", "OMA": "🇴🇲", "UAE": "🇦🇪"
-    }
-
-    def get_team_flag(code_str):
-        c = str(code_str).upper().strip()
-        return TEAM_FLAGS.get(c, "🏏")
 
     # Render Match Cards Grid (3 cards per row like Cricbuzz)
     cols = st.columns(3)
@@ -161,7 +139,7 @@ def render_live_matches():
                             st.info("No batting entries recorded.")
 
                     with col_b2:
-                        st.markdown("##### 🎯 Bowling Card")
+                        st.markdown("##### Bowling Card")
                         bowls = inn.get("bowlers", [])
                         if bowls:
                             df_bw = pd.DataFrame(bowls)

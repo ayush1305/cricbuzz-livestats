@@ -1,40 +1,40 @@
-# 🏏 Cricbuzz LiveStats - Cricket Analytics & SQL Dashboard
+# Cricbuzz LiveStats - Cricket Analytics & SQL Dashboard
 
 A comprehensive cricket analytics web application integrating real-time Cricbuzz API data with a relational SQL database (SQLite, PostgreSQL, MySQL), featuring interactive visualizations, full CRUD data management, and an execution engine for 25 SQL practice questions across Beginner, Intermediate, and Advanced tiers.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-1. **⚡ Live Match Intelligence**:
+1. **Live Match Intelligence**:
    - Real-time match scores, ball-by-ball commentary, and match status.
    - Live Batsmen scorecards (Runs, Balls, 4s, 6s, Strike Rate) and Bowling figures (Overs, Maidens, Runs, Wickets, Economy).
    - Seamless RapidAPI Cricbuzz integration with a built-in high-fidelity **Simulator Mode** when offline or API quota is exceeded.
 
-2. **📊 Top Player Stats & Global Leaderboards**:
+2. **Top Player Stats & Global Leaderboards**:
    - Format-specific leaderboards (Test, ODI, T20I).
    - Top run scorers, leading wicket-takers, and all-round rating matrices.
    - Interactive Plotly visualizations (bar charts, scatter matrices, radar views).
 
-3. **🔍 25 Production-Grade SQL Practice Questions**:
-   - Categorized into **Beginner (Q1–Q8)**, **Intermediate (Q9–Q16)**, and **Advanced (Q17–Q25)**.
+3. **25 Production-Grade SQL Practice Questions**:
+   - Categorized into **Beginner (Q1-Q8)**, **Intermediate (Q9-Q16)**, and **Advanced (Q17-Q25)**.
    - Live query runner with execution latency benchmarking in milliseconds.
    - One-click CSV export of query results.
    - Plain-English explanations of underlying database concepts (CTEs, Window Functions, Self-Joins, Conditional Pivots).
    - **Interactive Custom SQL Console**: Allows users to write and execute any arbitrary `SELECT` or `WITH` queries directly on the database.
 
-4. **🛠️ Relational CRUD Operations**:
+4. **Relational CRUD Operations**:
    - Form-based UI for managing `players` and `matches`.
    - Create, Read, Update, and Delete records with validation and foreign key integrity.
 
-5. **🗄️ Database-Agnostic Centralized Connection**:
+5. **Database-Agnostic Centralized Connection**:
    - Centralized handler in `utils/db_connection.py`.
    - Seamless support for **SQLite** (default zero-config), **PostgreSQL**, and **MySQL**.
    - Custom `STDDEV` statistical functions polyfilled on SQLite so complex analytical queries execute cross-platform.
 
 ---
 
-## 🗂️ Project Directory Structure
+## Project Directory Structure
 
 ```text
 cricbuzz_livestats/
@@ -67,7 +67,7 @@ cricbuzz_livestats/
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### 1. Prerequisites & Dependencies
 Ensure Python 3.9+ is installed. Install required packages:
@@ -89,7 +89,7 @@ The web dashboard will open automatically in your default browser at `http://loc
 
 ---
 
-## 🗄️ How to Connect Your SQL Database
+## How to Connect Your SQL Database
 
 Cricbuzz LiveStats supports **SQLite**, **PostgreSQL**, and **MySQL**.
 
@@ -120,9 +120,9 @@ Cricbuzz LiveStats supports **SQLite**, **PostgreSQL**, and **MySQL**.
    DATABASE_URL=postgresql+psycopg2://postgres:your_password@localhost:5432/cricket_analytics
    ```
 3. **Migrate & Seed:**
-   - In the Streamlit app, navigate to **⚙️ DB & API Settings**.
-   - Select **PostgreSQL**, enter your credentials, and click **🔌 Test Connection**.
-   - Click **🔄 Reset & Re-Seed Database** to build tables and load data into PostgreSQL.
+   - In the Streamlit app, navigate to **DB & API Settings**.
+   - Select **PostgreSQL**, enter your credentials, and click **Test Connection**.
+   - Click **Reset & Re-Seed Database** to build tables and load data into PostgreSQL.
 
 ---
 
@@ -145,23 +145,23 @@ Cricbuzz LiveStats supports **SQLite**, **PostgreSQL**, and **MySQL**.
    DATABASE_URL=mysql+pymysql://root:your_password@localhost:3306/cricket_analytics
    ```
 3. **Migrate & Seed:**
-   - Navigate to **⚙️ DB & API Settings** in the app.
-   - Click **🔌 Test Connection**, then click **🔄 Reset & Re-Seed Database**.
+   - Navigate to **DB & API Settings** in the app.
+   - Click **Test Connection**, then click **Reset & Re-Seed Database**.
 
 ---
 
-## 🌐 Configuring Cricbuzz RapidAPI Key
+## Configuring Cricbuzz RapidAPI Key
 
 1. Sign up for free at [RapidAPI Cricbuzz Cricket API](https://rapidapi.com/cricketapilive/api/cricbuzz-cricket/).
 2. Copy your RapidAPI Key.
 3. Either:
-   - Enter it in the **⚙️ DB & API Settings** page under the **RapidAPI Cricbuzz Key** tab.
+   - Enter it in the **DB & API Settings** page under the **RapidAPI Cricbuzz Key** tab.
    - Or set `RAPIDAPI_KEY=your_key_here` in your `.env` file.
 4. The API key connects directly to the live Cricbuzz database for streaming live matches, scorecards, and player statistics.
 
 ---
 
-## 🧮 Summary of the 25 SQL Practice Questions
+## Summary of the 25 SQL Practice Questions
 
 | # | Question Title | Difficulty | Key SQL Techniques |
 |---|---|---|---|
@@ -193,10 +193,11 @@ Cricbuzz LiveStats supports **SQLite**, **PostgreSQL**, and **MySQL**.
 
 ---
 
-## 🧪 Automated Testing
+## Automated Testing
 
 Run the automated verification suite to test all 25 queries:
 ```bash
 python tests/test_queries.py
 ```
 All 25 queries will be validated against the active database engine, displaying execution latency and returned row counts.
+

@@ -19,10 +19,10 @@ from utils.visualizer import (
 
 
 def render_sql_analytics():
-    st.title("🔍 SQL Practice & Analytics Engine")
+    st.title("SQL Practice & Analytics Engine")
     st.markdown("Execute all 25 production-grade SQL practice questions with instant results, execution plans, and dynamic visualizations.")
 
-    tab_catalog, tab_custom = st.tabs(["🧮 25 Pre-Built Practice Queries", "💻 Custom SQL Console"])
+    tab_catalog, tab_custom = st.tabs(["25 Practice Queries", "Custom SQL Console"])
 
     with tab_catalog:
         render_practice_catalog()
@@ -64,7 +64,7 @@ def render_practice_catalog():
     badge_bg = badge_colors.get(current_q["difficulty"], "#3B82F6")
 
     st.markdown(f"""
-    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 18px; border-radius: 8px; border-left: 5px solid {badge_bg}; margin: 15px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 18px; border-radius: 4px; border-left: 5px solid {badge_bg}; margin: 15px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; color: #0f172a;">Question {current_q['id']}: {current_q['title']}</h3>
             <span style="background: {badge_bg}; color: white; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.8rem;">
@@ -79,13 +79,13 @@ def render_practice_catalog():
     """, unsafe_allow_html=True)
 
     # SQL Statement Block
-    st.subheader("📝 SQL Query Implementation")
+    st.subheader("SQL Query Implementation")
     st.code(current_q["sql"], language="sql")
 
     # Execution controls
     col_exec, col_csv = st.columns([1, 4])
     with col_exec:
-        run_btn = st.button("▶️ Execute Query", key=f"run_q_{current_q['id']}", type="primary")
+        run_btn = st.button("Execute Query", key=f"run_q_{current_q['id']}", type="primary")
 
     # Execute automatically or on button click
     start_time = time.time()
@@ -95,9 +95,9 @@ def render_practice_catalog():
 
         st.markdown(f"""
         <div style="display: flex; gap: 15px; margin: 10px 0;">
-            <span style="color: #10B981; font-weight: bold;">✅ Query executed successfully</span>
-            <span style="color: #94a3b8;">⏱️ Latency: <strong>{elapsed_ms:.2f} ms</strong></span>
-            <span style="color: #94a3b8;">📊 Rows returned: <strong>{len(df)}</strong></span>
+            <span style="color: #10B981; font-weight: bold;">Query executed successfully</span>
+            <span style="color: #64748b;">Latency: <strong>{elapsed_ms:.2f} ms</strong></span>
+            <span style="color: #64748b;">Rows returned: <strong>{len(df)}</strong></span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -108,7 +108,7 @@ def render_practice_catalog():
             # Download CSV
             csv_data = df.to_csv(index=False).encode("utf-8")
             st.download_button(
-                label="📥 Download Result as CSV",
+                label="Download Result as CSV",
                 data=csv_data,
                 file_name=f"cricket_analytics_q{current_q['id']}.csv",
                 mime="text/csv",
@@ -135,12 +135,12 @@ def render_practice_catalog():
         st.error(f"Execution Error: {str(err)}")
 
     # Educational Explanation
-    st.subheader("💡 Query Explanation & Techniques")
+    st.subheader("Query Explanation & Techniques")
     st.info(current_q["explanation"])
 
 
 def render_custom_console():
-    st.subheader("💻 Interactive Custom SQL Console")
+    st.subheader("Interactive Custom SQL Console")
     st.markdown("Run your own queries directly on the cricket analytics schema.")
 
     default_custom = "SELECT full_name, country, playing_role FROM players LIMIT 10;"
@@ -148,9 +148,9 @@ def render_custom_console():
 
     col_btn, col_help = st.columns([1, 4])
     with col_btn:
-        exec_custom = st.button("🚀 Run Custom SQL", type="primary")
+        exec_custom = st.button("Run Custom SQL", type="primary")
 
-    with st.expander("📚 Available Tables & Schema Reference"):
+    with st.expander("Available Tables & Schema Reference"):
         st.markdown("""
         * **teams** (`team_id`, `team_name`, `team_code`, `country`)
         * **players** (`player_id`, `team_id`, `full_name`, `country`, `playing_role`, `batting_style`, `bowling_style`, `debut_year`)
@@ -178,6 +178,6 @@ def render_custom_console():
             st.dataframe(df_custom, use_container_width=True, hide_index=True)
 
             csv = df_custom.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Download Results CSV", csv, "custom_query_results.csv", "text/csv")
+            st.download_button("Download Results CSV", csv, "custom_query_results.csv", "text/csv")
         except Exception as e:
             st.error(f"SQL Error: {str(e)}")

@@ -1,7 +1,7 @@
 """
 Cricbuzz LiveStats - Pixel-Perfect Cricbuzz Header & Navigation
 Exact recreation of official Cricbuzz navbar:
-cricbuzz logo | Live Scores | Schedule | Archives | News ▾ | Series ▾ | Teams ▾ | Videos ▾ | Rankings ▾ | More ▾ | 👤
+cricbuzz logo | Live Scores | Schedule | Archives | News | Series | Teams | Videos | Rankings | More
 (Go Premium removed as requested)
 """
 
@@ -16,7 +16,6 @@ from utils.cricbuzz_api import CricbuzzAPIClient
 # Page Configuration
 st.set_page_config(
     page_title="Cricbuzz Cricket",
-    page_icon="🏏",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -454,20 +453,15 @@ for m in recent_m[:5]:
     ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
 
 if not ticker_items_html:
-    ticker_items_html = """
-    <a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RSA vs ZIM</strong> - <span class="cb-ticker-status">Need 16...</span></a>
-    <a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>BANW vs SLW</strong> - <span class="cb-ticker-status">SLW opt to bowl</span></a>
-    <a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RDD vs ADF</strong> - <span class="cb-ticker-status">ADF opt to bowl</span></a>
-    <a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>GAWW vs JEW</strong> - <span class="cb-ticker-status">JEW in progress</span></a>
-    """
+    ticker_items_html = (
+        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RSA vs ZIM</strong> - <span class="cb-ticker-status">Need 16...</span></a>'
+        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>BANW vs SLW</strong> - <span class="cb-ticker-status">SLW opt to bowl</span></a>'
+        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>RDD vs ADF</strong> - <span class="cb-ticker-status">ADF opt to bowl</span></a>'
+        '<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>GAWW vs JEW</strong> - <span class="cb-ticker-status">Preview</span></a>'
+    )
 
-st.markdown(f"""
-<div class="cb-subbar">
-    <span class="cb-matches-tag">MATCHES</span>
-    {ticker_items_html}
-    <span class="cb-all-dropdown">ALL ▾</span>
-</div>
-""", unsafe_allow_html=True)
+subbar_html = f'<div class="cb-subbar"><span class="cb-matches-tag">MATCHES</span>{ticker_items_html}<span class="cb-all-dropdown">ALL ▾</span></div>'
+st.markdown(subbar_html, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # VIEW ROUTING BASED ON ACTIVE CRICBUZZ MENU ITEM
@@ -486,7 +480,7 @@ if current_page == "Live Scores":
 
 # 2. SCHEDULE
 elif current_page == "Schedule":
-    st.markdown("### 📅 International & League Schedule")
+    st.markdown("### International & League Schedule")
     st.caption("Live match fixtures and upcoming calendar from Cricbuzz API")
     if recent_m:
         df_sched = pd.DataFrame([{
@@ -504,7 +498,7 @@ elif current_page == "Schedule":
 elif current_page == "Archives":
     st.markdown("""
     <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-        <h4 style="margin: 0; color: #009270; font-weight: 800;">📚 Cricket Archives: 25 SQL Analytics Questions & Custom Console</h4>
+        <h4 style="margin: 0; color: #009270; font-weight: 800;">Cricket Archives: 25 SQL Analytics Questions & Custom Console</h4>
         <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">
             Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.
         </p>
@@ -522,18 +516,18 @@ elif current_page == "Teams":
 
 # 6. SERIES ▾
 elif current_page == "Series":
-    st.markdown("### 🏆 Cricket Series & Tournaments")
+    st.markdown("### Cricket Series & Tournaments")
     df_ser = execute_query("SELECT series_id, series_name, host_country, match_type, start_date, total_matches FROM series ORDER BY start_date DESC")
     st.dataframe(df_ser, use_container_width=True, hide_index=True)
 
 # 7. NEWS ▾
 elif current_page == "News":
-    st.markdown("### 📰 Latest Cricket News & Match Reports")
+    st.markdown("### Latest Cricket News & Match Reports")
     st.info("Live updates: Pakistan tour of England 2026 Test series underway; Caribbean Premier League action in progress.")
 
 # 8. VIDEOS ▾
 elif current_page == "Videos":
-    st.markdown("### 🎥 Match Highlights & Video Analysis")
+    st.markdown("### Match Highlights & Video Analysis")
     st.info("Highlights and post-match conferences are synchronized with Cricbuzz video feeds.")
 
 # 9. MORE ▾ (Houses CRUD Operations, Connect SQL Database, and Project Documentation)

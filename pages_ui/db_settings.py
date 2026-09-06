@@ -18,7 +18,7 @@ from database.sync_api_data import sync_real_data
 def render_db_settings():
     st.markdown("""
     <div style="background: #ffffff; padding: 20px; border-radius: 8px; border-left: 5px solid #009270; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px;">
-        <h2 style="color: #009270; margin: 0; font-weight: 900;">🔌 SQL Database Connection Center</h2>
+        <h2 style="color: #009270; margin: 0; font-weight: 900;">SQL Database Connection Center</h2>
         <p style="color: #64748b; margin: 6px 0 0 0; font-size: 15px;">
             Cricbuzz LiveStats is database-agnostic. You can run locally on <strong>SQLite (Ready Out-of-the-Box)</strong>, or connect to your external <strong>PostgreSQL</strong> or <strong>MySQL</strong> servers.
         </p>
@@ -50,38 +50,38 @@ def render_db_settings():
 
     # Connection Tabs
     tab_sqlite, tab_pg, tab_mysql, tab_guide = st.tabs([
-        "📁 Option 1: SQLite (Current / Zero-Config)",
-        "🐘 Option 2: Connect PostgreSQL",
-        "🐬 Option 3: Connect MySQL",
-        "📖 Step-by-Step Connection Guide"
+        "Option 1: SQLite (Current / Zero-Config)",
+        "Option 2: Connect PostgreSQL",
+        "Option 3: Connect MySQL",
+        "Step-by-Step Connection Guide"
     ])
 
     # 1. SQLITE
     with tab_sqlite:
-        st.markdown("### 📁 SQLite Database Configuration")
-        st.info("💡 **Zero Configuration Required**: SQLite requires no background service or password. Data is stored directly in your workspace.")
+        st.markdown("### SQLite Database Configuration")
+        st.info("**Zero Configuration Required**: SQLite requires no background service or password. Data is stored directly in your workspace.")
         
         default_p = get_default_db_path()
         st.code(f"Active SQLite File: {default_p}", language="text")
 
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("🔌 Test SQLite Connection", type="primary"):
+            if st.button("Test SQLite Connection", type="primary"):
                 ok, msg = test_connection(f"sqlite:///{default_p}")
                 if ok:
-                    st.success("✅ SQLite database is connected and fully operational!")
+                    st.success("SQLite database is connected and fully operational!")
                 else:
-                    st.error(f"❌ {msg}")
+                    st.error(msg)
         with c2:
-            if st.button("🔄 Re-Sync Live Cricbuzz Data to SQLite"):
+            if st.button("Re-Sync Live Cricbuzz Data to SQLite"):
                 with st.spinner("Fetching latest real-time records from Cricbuzz API..."):
                     sync_real_data(f"sqlite:///{default_p}")
-                    st.success("🎉 SQLite database successfully updated with real Cricbuzz data!")
+                    st.success("SQLite database successfully updated with real Cricbuzz data!")
                     st.rerun()
 
     # 2. POSTGRESQL
     with tab_pg:
-        st.markdown("### 🐘 Connect to an External PostgreSQL Database")
+        st.markdown("### Connect to an External PostgreSQL Database")
         st.markdown("Enter your PostgreSQL database credentials below to switch your connection:")
 
         with st.form("pg_connect_form"):
@@ -99,16 +99,16 @@ def render_db_settings():
 
             c_btn1, c_btn2 = st.columns(2)
             with c_btn1:
-                test_pg = st.form_submit_button("🔌 Test PostgreSQL Connection", type="primary")
+                test_pg = st.form_submit_button("Test PostgreSQL Connection", type="primary")
             with c_btn2:
-                sync_pg = st.form_submit_button("⚡ Connect & Sync Real Data to PostgreSQL")
+                sync_pg = st.form_submit_button("Connect & Sync Real Data to PostgreSQL")
 
         if test_pg:
             ok, msg = test_connection(pg_conn_url)
             if ok:
-                st.success(f"✅ {msg}")
+                st.success(msg)
             else:
-                st.error(f"❌ {msg}")
+                st.error(msg)
 
         if sync_pg:
             ok, msg = test_connection(pg_conn_url)
@@ -120,14 +120,14 @@ def render_db_settings():
                         sync_real_data(pg_conn_url)
                         os.environ["DATABASE_URL"] = pg_conn_url
                         get_engine(pg_conn_url)
-                        st.success("🎉 PostgreSQL successfully connected and populated with real Cricbuzz records!")
+                        st.success("PostgreSQL successfully connected and populated with real Cricbuzz records!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"Sync failed: {str(e)}")
 
     # 3. MYSQL
     with tab_mysql:
-        st.markdown("### 🐬 Connect to an External MySQL Database")
+        st.markdown("### Connect to an External MySQL Database")
         st.markdown("Enter your MySQL credentials to connect:")
 
         with st.form("mysql_connect_form"):
@@ -145,16 +145,16 @@ def render_db_settings():
 
             c_m1, c_m2 = st.columns(2)
             with c_m1:
-                test_my = st.form_submit_button("🔌 Test MySQL Connection", type="primary")
+                test_my = st.form_submit_button("Test MySQL Connection", type="primary")
             with c_m2:
-                sync_my = st.form_submit_button("⚡ Connect & Sync Real Data to MySQL")
+                sync_my = st.form_submit_button("Connect & Sync Real Data to MySQL")
 
         if test_my:
             ok, msg = test_connection(my_conn_url)
             if ok:
-                st.success(f"✅ {msg}")
+                st.success(msg)
             else:
-                st.error(f"❌ {msg}")
+                st.error(msg)
 
         if sync_my:
             ok, msg = test_connection(my_conn_url)
@@ -166,7 +166,7 @@ def render_db_settings():
                         sync_real_data(my_conn_url)
                         os.environ["DATABASE_URL"] = my_conn_url
                         get_engine(my_conn_url)
-                        st.success("🎉 MySQL successfully connected and populated with real Cricbuzz records!")
+                        st.success("MySQL successfully connected and populated with real Cricbuzz records!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"Sync failed: {str(e)}")
@@ -174,7 +174,7 @@ def render_db_settings():
     # 4. STEP-BY-STEP INSTRUCTIONS GUIDE
     with tab_guide:
         st.markdown("""
-        ### 📖 How to Connect Any SQL Database to Cricbuzz LiveStats
+        ### How to Connect Any SQL Database to Cricbuzz LiveStats
 
         #### Method A: SQLite (Default - Ready Right Now)
         You do not need to install any database server. The application is already connected to:
@@ -192,7 +192,7 @@ def render_db_settings():
            ```
         3. Open the **Option 2: Connect PostgreSQL** tab above.
         4. Enter your host (`localhost`), port (`5432`), user (`postgres`), and password.
-        5. Click **⚡ Connect & Sync Real Data to PostgreSQL**.
+        5. Click **Connect & Sync Real Data to PostgreSQL**.
         6. The platform will automatically create all tables, indexes, and sync real Cricbuzz matches into PostgreSQL!
 
         ---
@@ -205,5 +205,5 @@ def render_db_settings():
            ```
         3. Open the **Option 3: Connect MySQL** tab above.
         4. Enter your MySQL port (`3306`), user (`root`), and password.
-        5. Click **⚡ Connect & Sync Real Data to MySQL**.
+        5. Click **Connect & Sync Real Data to MySQL**.
         """)

@@ -9,10 +9,10 @@ from utils.db_connection import execute_query, execute_statement
 
 
 def render_crud_operations():
-    st.title("🛠️ Database CRUD Management Center")
+    st.title("Database CRUD Management Center")
     st.markdown("Perform Create, Read, Update, and Delete operations on relational cricket entities with validation.")
 
-    crud_tab1, crud_tab2 = st.tabs(["👤 Player Management", "🏟️ Match Management"])
+    crud_tab1, crud_tab2 = st.tabs(["Player Management", "Match Management"])
 
     with crud_tab1:
         render_player_crud()
@@ -23,7 +23,7 @@ def render_crud_operations():
 
 def render_player_crud():
     st.subheader("Manage Player Records")
-    action = st.radio("Operation:", ["📋 View & Search Players", "➕ Add New Player", "✏️ Update Player", "❌ Delete Player"], horizontal=True)
+    action = st.radio("Operation:", ["View & Search Players", "Add New Player", "Update Player", "Delete Player"], horizontal=True)
 
     # Fetch reference teams
     try:
@@ -33,7 +33,7 @@ def render_player_crud():
         team_map = {}
 
     # 1. READ / SEARCH
-    if action == "📋 View & Search Players":
+    if action == "View & Search Players":
         col_search, col_role = st.columns([2, 1])
         with col_search:
             search_name = st.text_input("Search by Player Name:")
@@ -69,7 +69,7 @@ def render_player_crud():
         st.dataframe(df_players, use_container_width=True, hide_index=True)
 
     # 2. CREATE
-    elif action == "➕ Add New Player":
+    elif action == "Add New Player":
         st.markdown("#### Register a New Player")
         with st.form("add_player_form"):
             name = st.text_input("Full Name *", placeholder="e.g. Jasprit Bumrah")
@@ -94,7 +94,7 @@ def render_player_crud():
                     "Right-arm legbreak", "Left-arm fast", "Slow left-arm orthodox", "None"
                 ])
 
-            submit_add = st.form_submit_button("💾 Save Player to Database", type="primary")
+            submit_add = st.form_submit_button("Save Player to Database", type="primary")
 
         if submit_add:
             if not name.strip():
@@ -120,12 +120,12 @@ def render_player_crud():
                         "bowl": None if bowl_style == "None" else bowl_style,
                         "debut": int(debut)
                     })
-                    st.success(f"🎉 Player '{name}' successfully registered with ID #{new_id}!")
+                    st.success(f"Player '{name}' successfully registered with ID #{new_id}!")
                 except Exception as e:
                     st.error(f"Failed to create player: {str(e)}")
 
     # 3. UPDATE
-    elif action == "✏️ Update Player":
+    elif action == "Update Player":
         st.markdown("#### Modify Player Details")
         df_all = execute_query("SELECT player_id, full_name FROM players ORDER BY full_name ASC")
         if df_all.empty:
@@ -160,7 +160,7 @@ def render_player_crud():
             up_bat = st.selectbox("Batting Style", ["Right-hand bat", "Left-hand bat"], index=0 if curr["batting_style"] == "Right-hand bat" else 1)
             up_bowl = st.text_input("Bowling Style", value=curr["bowling_style"] or "None")
 
-            submit_update = st.form_submit_button("🔄 Update Player Record", type="primary")
+            submit_update = st.form_submit_button("Update Player Record", type="primary")
 
         if submit_update:
             try:
@@ -185,12 +185,12 @@ def render_player_crud():
                     "bowl": None if up_bowl == "None" else up_bowl.strip(),
                     "debut": int(up_debut)
                 })
-                st.success(f"✅ Record for '{up_name}' updated successfully!")
+                st.success(f"Record for '{up_name}' updated successfully!")
             except Exception as e:
                 st.error(f"Update failed: {str(e)}")
 
     # 4. DELETE
-    elif action == "❌ Delete Player":
+    elif action == "Delete Player":
         st.markdown("#### Remove Player Record")
         df_all = execute_query("SELECT player_id, full_name, country FROM players ORDER BY full_name ASC")
         if df_all.empty:
@@ -201,13 +201,13 @@ def render_player_crud():
         selected_del = st.selectbox("Select Player to Delete:", list(del_options.keys()))
         target_pid = del_options[selected_del]
 
-        st.warning(f"⚠️ Deleting this player will remove associated player records. This operation cannot be undone.")
+        st.warning("Deleting this player will remove associated player records. This operation cannot be undone.")
         confirm_del = st.checkbox("I understand and confirm deletion of this player.")
 
-        if st.button("🗑️ Permanently Delete Player", type="primary", disabled=not confirm_del):
+        if st.button("Permanently Delete Player", type="primary", disabled=not confirm_del):
             try:
                 execute_statement("DELETE FROM players WHERE player_id = :pid", {"pid": target_pid})
-                st.success(f"Player deleted successfully!")
+                st.success("Player deleted successfully!")
                 st.rerun()
             except Exception as e:
                 st.error(f"Deletion failed: {str(e)}")
@@ -215,9 +215,9 @@ def render_player_crud():
 
 def render_match_crud():
     st.subheader("Manage Match Records")
-    m_action = st.radio("Match Action:", ["📋 View Matches", "➕ Schedule New Match", "❌ Delete Match"], horizontal=True)
+    m_action = st.radio("Match Action:", ["View Matches", "Schedule New Match", "Delete Match"], horizontal=True)
 
-    if m_action == "📋 View Matches":
+    if m_action == "View Matches":
         df_m = execute_query("""
         SELECT
             m.match_id,
@@ -239,7 +239,7 @@ def render_match_crud():
         """)
         st.dataframe(df_m, use_container_width=True, hide_index=True)
 
-    elif m_action == "➕ Schedule New Match":
+    elif m_action == "Schedule New Match":
         df_teams = execute_query("SELECT team_id, team_name FROM teams ORDER BY team_name ASC")
         df_venues = execute_query("SELECT venue_id, venue_name FROM venues ORDER BY venue_name ASC")
         team_map = dict(zip(df_teams["team_name"], df_teams["team_id"]))
@@ -256,7 +256,7 @@ def render_match_crud():
 
             ven = st.selectbox("Venue", list(venue_map.keys()))
             m_date = st.date_input("Match Date")
-            submit_match = st.form_submit_button("💾 Save Match", type="primary")
+            submit_match = st.form_submit_button("Save Match", type="primary")
 
         if submit_match:
             if t1 == t2:
@@ -284,7 +284,7 @@ def render_match_crud():
                 except Exception as e:
                     st.error(f"Failed to create match: {str(e)}")
 
-    elif m_action == "❌ Delete Match":
+    elif m_action == "Delete Match":
         df_all_m = execute_query("SELECT match_id, match_description, match_date FROM matches ORDER BY match_date DESC")
         if df_all_m.empty:
             st.warning("No matches available to delete.")
@@ -294,7 +294,7 @@ def render_match_crud():
         sel_m = st.selectbox("Select Match to Delete:", list(m_dict.keys()))
         target_mid = m_dict[sel_m]
 
-        if st.button("🗑️ Delete Selected Match", type="primary"):
+        if st.button("Delete Selected Match", type="primary"):
             try:
                 execute_statement("DELETE FROM matches WHERE match_id = :mid", {"mid": target_mid})
                 st.success("Match deleted successfully!")
