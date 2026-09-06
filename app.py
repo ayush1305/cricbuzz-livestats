@@ -404,12 +404,11 @@ navbar_html = f"""
 <div class="cb-dropdown-menu">
 <a href="?page=More&sub=sql" target="_self">25 SQL Practice Queries</a>
 <a href="?page=More&sub=crud" target="_self">CRUD Operations (Manage Data)</a>
-<a href="?page=More&sub=connect" target="_self">Connect SQL Database</a>
 </div>
 </div>
 </div>
 <div class="cb-header-right">
-<a href="?page=More&sub=connect" target="_self" class="cb-profile-btn" title="Account & SQL Database Connection">
+<a href="?page=More&sub=crud" target="_self" class="cb-profile-btn" title="Cricbuzz Management & Settings">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 <circle cx="12" cy="7" r="4"></circle>
@@ -448,7 +447,6 @@ from pages_ui.live_matches import render_live_matches
 from pages_ui.top_stats import render_top_stats
 from pages_ui.sql_analytics import render_sql_analytics
 from pages_ui.crud_operations import render_crud_operations
-from pages_ui.db_settings import render_db_settings
 from pages_ui.teams_squads import render_teams_and_squads
 
 # 1. LIVE SCORES
@@ -474,25 +472,20 @@ elif current_page == "News":
     st.markdown("### Latest Cricket News & Match Reports")
     st.info("Live updates: Pakistan tour of England 2026 Test series underway; Caribbean Premier League action in progress.")
 
-# 6. MORE ▾ (Houses 25 SQL Practice Queries, CRUD Operations, Connect SQL Database)
+# 6. MORE ▾ (Houses 25 SQL Practice Queries & CRUD Operations)
 elif current_page == "More":
     st.markdown("### Cricbuzz Management & Database Operations")
     
     sub_param = st.query_params.get("sub", "").lower()
     default_idx = 0
-    if "sql" in sub_param or "archive" in sub_param:
-        default_idx = 0
-    elif "crud" in sub_param:
+    if "crud" in sub_param:
         default_idx = 1
-    elif "connect" in sub_param or "doc" in sub_param:
-        default_idx = 2
 
     sub_option = st.radio(
         "Select Operation:",
         [
             "25 SQL Practice Queries & Custom Console",
-            "CRUD Operations (Manage Players & Matches)",
-            "Connect SQL Database"
+            "CRUD Operations (Manage Players & Matches)"
         ],
         index=default_idx,
         horizontal=True
@@ -500,10 +493,8 @@ elif current_page == "More":
     if "SQL" in sub_option:
         st.markdown("""<div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><h4 style="margin: 0; color: #009270; font-weight: 800;">25 SQL Analytics Questions & Custom Console</h4><p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.</p></div>""", unsafe_allow_html=True)
         render_sql_analytics()
-    elif "CRUD" in sub_option:
-        render_crud_operations()
     else:
-        render_db_settings()
+        render_crud_operations()
 
 else:
     render_teams_and_squads()
