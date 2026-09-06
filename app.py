@@ -205,65 +205,98 @@ st.markdown(f"""
     }}
 
     /* ------------------------------------------------------------- */
-    /* SUBBAR / TICKER STRIP                                         */
+    /* SUBBAR / TICKER STRIP (AUTHENTIC CRICBUZZ)                    */
     /* ------------------------------------------------------------- */
     .cb-subbar {{
-        background-color: #1d252c;
+        background-color: #4a4a4a !important;
         margin-left: -2rem !important;
         margin-right: -2rem !important;
-        margin-bottom: 18px !important;
+        margin-top: 0 !important;
+        margin-bottom: 16px !important;
         width: calc(100% + 4rem) !important;
-        padding: 0 24px;
-        height: 38px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        overflow-x: auto;
-        white-space: nowrap;
+        padding: 0 16px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
     }}
 
     .cb-matches-tag {{
-        background-color: #333d47;
-        color: #ffffff;
-        padding: 3px 10px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        border-radius: 2px;
-        text-transform: uppercase;
-        margin-right: 6px;
+        background: transparent !important;
+        color: #ffffff !important;
+        padding: 0 16px 0 2px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+    }}
+
+    .cb-subbar-items {{
+        display: flex !important;
+        align-items: center !important;
+        gap: 22px !important;
+        overflow-x: auto !important;
+        flex-grow: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }}
+    .cb-subbar-items::-webkit-scrollbar {{
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }}
 
     .cb-ticker-link {{
-        color: #cbd5e1 !important;
+        color: #ffffff !important;
         text-decoration: none !important;
-        font-size: 12px;
-        font-weight: 500;
-        padding: 4px 12px;
-        border-right: 1px solid #334155;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.15s;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0.1px !important;
+        transition: opacity 0.15s !important;
     }}
 
     .cb-ticker-link:hover {{
         color: #ffffff !important;
+        opacity: 0.85 !important;
+        text-decoration: underline !important;
     }}
 
     .cb-ticker-status {{
-        color: #f87171;
-        font-size: 11px;
-        font-weight: 600;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 400 !important;
     }}
 
     .cb-all-dropdown {{
-        color: #94a3b8;
-        font-size: 12px;
-        font-weight: 700;
-        margin-left: auto;
-        padding-left: 15px;
-        cursor: pointer;
+        color: #ffffff !important;
+        text-decoration: none !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        margin-left: auto !important;
+        padding-left: 18px !important;
+        padding-right: 4px !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }}
+
+    .cb-all-dropdown:hover {{
+        color: #ffffff !important;
+        text-decoration: underline !important;
     }}
 
     /* ------------------------------------------------------------- */
@@ -424,16 +457,47 @@ st.markdown(clean_navbar, unsafe_allow_html=True)
 # EXACT CRICBUZZ SUBBAR (MATCHES / SERIES TICKER)
 # ------------------------------------------------------------------------------
 from pages_ui.live_matches import get_db_fallback_matches
+
+TICKER_ABBRS = {
+    "Afghanistan": "AFG", "Australia": "AUS", "Bangladesh": "BAN", "Canada": "CAN",
+    "England": "ENG", "India": "IND", "Ireland": "IRE", "Namibia": "NAM",
+    "Nepal": "NEP", "Netherlands": "NED", "New Zealand": "NZ", "Pakistan": "PAK",
+    "Scotland": "SCO", "South Africa": "RSA", "Sri Lanka": "SL", "United States": "USA",
+    "West Indies": "WI", "Zimbabwe": "ZIM",
+    "St Kitts and Nevis Patriots": "SNP", "Guyana Amazon Warriors": "GAW",
+    "Barbados Royals": "BBT", "Saint Lucia Kings": "SLK", "Trinbago Knight Riders": "TKR",
+    "Antigua & Barbuda Falcons": "ABF", "Royal Challengers Bengaluru": "RCB",
+    "Chennai Super Kings": "CSK", "Mumbai Indians": "MI", "Kolkata Knight Riders": "KKR",
+    "Delhi Capitals": "DC", "Rajasthan Royals": "RR", "Punjab Kings": "PBKS",
+    "Sunrisers Hyderabad": "SRH", "Gujarat Titans": "GT", "Lucknow Super Giants": "LSG"
+}
+
+def format_cricbuzz_ticker_item(title, status):
+    t = title.strip()
+    for full_name, code in TICKER_ABBRS.items():
+        t = re.sub(rf"\b{re.escape(full_name)}\b", code, t, flags=re.IGNORECASE)
+    
+    st_val = status.strip()
+    for full_name, code in TICKER_ABBRS.items():
+        st_val = re.sub(rf"\b{re.escape(full_name)}\b", code, st_val, flags=re.IGNORECASE)
+    
+    if len(st_val) > 13:
+        st_val = st_val[:11].rstrip() + "..."
+        
+    return t, st_val
+
 ticker_matches = recent_m if recent_m else get_db_fallback_matches()
 ticker_items_html = ""
-for m in ticker_matches[:5]:
-    st_text = m.get("status", "")[:26]
-    ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
+for m in ticker_matches[:6]:
+    s_title, s_st = format_cricbuzz_ticker_item(m.get("title", ""), m.get("status", ""))
+    ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{s_title}</strong> - <span class="cb-ticker-status">{s_st}</span></a>'
 
 subbar_html = f"""
 <div class="cb-subbar">
 <span class="cb-matches-tag">MATCHES</span>
+<div class="cb-subbar-items">
 {ticker_items_html}
+</div>
 <a href="?page=Live+Scores" target="_self" class="cb-all-dropdown">ALL ▾</a>
 </div>
 """
