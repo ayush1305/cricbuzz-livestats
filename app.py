@@ -33,21 +33,19 @@ try:
 except Exception:
     recent_m = []
 
-has_live_matches = bool(recent_m)
-
 # Handle query parameters for seamless link navigation
 query_page = st.query_params.get("page")
 if query_page:
-    if query_page in ["Schedule", "Archives", "Videos"] or (query_page == "Live Scores" and not has_live_matches):
-        query_page = "Teams"
+    if query_page in ["Schedule", "Archives", "Videos"]:
+        query_page = "Live Scores"
     st.session_state["nav_page"] = query_page
 elif "nav_page" not in st.session_state:
-    st.session_state["nav_page"] = "Teams"
+    st.session_state["nav_page"] = "Live Scores"
 
-current_page = st.session_state.get("nav_page", "Teams")
-if current_page in ["Schedule", "Archives", "Videos"] or (current_page == "Live Scores" and not has_live_matches):
-    current_page = "Teams"
-    st.session_state["nav_page"] = "Teams"
+current_page = st.session_state.get("nav_page", "Live Scores")
+if current_page in ["Schedule", "Archives", "Videos"]:
+    current_page = "Live Scores"
+    st.session_state["nav_page"] = "Live Scores"
 
 # Cricbuzz Official Stylesheet
 st.markdown(f"""
@@ -361,12 +359,12 @@ def get_nav_item(name, label):
 
 logo_img_tag = f'<img src="data:image/png;base64,{logo_b64}" height="30" style="vertical-align: middle;">' if logo_b64 else '<span style="font-size: 22px; font-weight: 900; color: white;">cricbuzz</span>'
 
-live_nav_item = get_nav_item("Live Scores", "Live Scores") if has_live_matches else ""
+live_nav_item = get_nav_item("Live Scores", "Live Scores")
 
 navbar_html = f"""
 <div class="cb-header-bar">
 <div class="cb-nav-menu">
-<a href="?page=Teams" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">{logo_img_tag}</a>
+<a href="?page=Live+Scores" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">{logo_img_tag}</a>
 {live_nav_item}
 <div class="cb-nav-dropdown">
 {get_nav_item("News", "News ▾")}
@@ -444,21 +442,18 @@ st.markdown(clean_navbar, unsafe_allow_html=True)
 # ------------------------------------------------------------------------------
 # EXACT CRICBUZZ SUBBAR (MATCHES / SERIES TICKER)
 # ------------------------------------------------------------------------------
-if has_live_matches:
-    ticker_items_html = ""
-    for m in recent_m[:5]:
-        st_text = m.get("status", "")[:26]
-        ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
-    subbar_html = f'<div class="cb-subbar"><span class="cb-matches-tag">MATCHES</span>{ticker_items_html}<a href="?page=Live+Scores" target="_self" class="cb-all-dropdown">ALL ▾</a></div>'
-else:
-    subbar_html = """
+from pages_ui.live_matches import get_db_fallback_matches
+ticker_matches = recent_m if recent_m else get_db_fallback_matches()
+ticker_items_html = ""
+for m in ticker_matches[:5]:
+    st_text = m.get("status", "")[:26]
+    ticker_items_html += f'<a href="?page=Live+Scores" target="_self" class="cb-ticker-link"><strong>{m["title"]}</strong> - <span class="cb-ticker-status">{st_text}</span></a>'
+
+subbar_html = f"""
 <div class="cb-subbar">
-<span class="cb-matches-tag">SERIES</span>
-<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>PAK vs ENG</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">Test Series</span></a>
-<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IREW vs ENGW</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">ODI Tour</span></a>
-<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>County Div 1</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">First Class</span></a>
-<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IPL & Leagues</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">T20 Calendar</span></a>
-<a href="?page=Series" target="_self" class="cb-all-dropdown">ALL SERIES ▾</a>
+<span class="cb-matches-tag">MATCHES</span>
+{ticker_items_html}
+<a href="?page=Live+Scores" target="_self" class="cb-all-dropdown">ALL ▾</a>
 </div>
 """
 clean_subbar = " ".join(line.strip() for line in subbar_html.splitlines() if line.strip())
@@ -476,7 +471,7 @@ from pages_ui.home import render_home
 from pages_ui.teams_squads import render_teams_and_squads
 
 # 1. LIVE SCORES
-if current_page == "Live Scores" and has_live_matches:
+if current_page == "Live Scores":
     render_live_matches()
 
 # 2. TEAMS ▾ (Official International Squads & Rosters with Player Stats)
