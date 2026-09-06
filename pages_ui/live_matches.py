@@ -58,8 +58,6 @@ def render_live_matches():
             t2_name = t2.get('code', t2.get('name', 'T2'))
             t1_score = t1.get("scores", ["-"])[0]
             t2_score = t2.get("scores", ["-"])[0]
-            t1_flag = get_team_flag(t1_name)
-            t2_flag = get_team_flag(t2_name)
             status_txt = m.get("status", "Match in Progress")
             series_name = m.get("series", "International Series")
             m_format = m.get("format", "T20I")
@@ -80,11 +78,11 @@ def render_live_matches():
                         <span class="cb-format-pill">{m_format}</span>
                     </div>
                     <div class="cb-team-row">
-                        <span>{t1_flag} {t1_name}</span>
+                        <span>{t1_name}</span>
                         <span class="cb-team-score">{t1_score}</span>
                     </div>
                     <div class="cb-team-row">
-                        <span>{t2_flag} {t2_name}</span>
+                        <span>{t2_name}</span>
                         <span class="cb-team-score">{t2_score}</span>
                     </div>
                     <div class="cb-status-text" style="color: {status_color};">
@@ -101,7 +99,7 @@ def render_live_matches():
     st.markdown("---")
 
     # Match Detail Inspector
-    st.markdown("### 📋 Official Match Scorecard & Ball Commentary")
+    st.markdown("### Official Match Scorecard & Ball Commentary")
     match_titles = [f"{m['title']} ({m['format']}) - {m.get('series', '')[:30]}" for m in matches]
     selected_idx = st.selectbox(
         "Select match to inspect detailed scorecard:",
@@ -131,7 +129,7 @@ def render_live_matches():
     """, unsafe_allow_html=True)
 
     # Tabs for Scorecard vs Commentary
-    tab_sc, tab_comm = st.tabs(["📊 Scorecard (mcenter/hscard)", "🎙️ Ball-by-Ball Commentary (mcenter/comm)"])
+    tab_sc, tab_comm = st.tabs(["Scorecard", "Ball-by-Ball Commentary"])
 
     with tab_sc:
         with st.spinner("Fetching official scorecard from Cricbuzz API..."):
@@ -150,7 +148,7 @@ def render_live_matches():
 
                     col_b1, col_b2 = st.columns(2)
                     with col_b1:
-                        st.markdown("##### 🏏 Batting Card")
+                        st.markdown("##### Batting Card")
                         bats = inn.get("batsmen", [])
                         if bats:
                             df_b = pd.DataFrame(bats)

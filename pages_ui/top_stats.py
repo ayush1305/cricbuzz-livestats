@@ -10,7 +10,7 @@ from utils.visualizer import create_top_run_scorers_chart
 
 
 def render_top_stats():
-    st.title("📊 Top Player Statistics & Global Leaderboards")
+    st.title("Top Player Statistics & Global Leaderboards")
     st.markdown("Explore batting, bowling, and all-round excellence across Test, ODI, and T20I formats.")
 
     col1, col2 = st.columns([1, 2])
@@ -19,7 +19,7 @@ def render_top_stats():
     with col2:
         stat_category = st.radio(
             "Category:",
-            ["🏏 Top Batting Records", "🎯 Top Bowling Figures", "⚖️ All-Round Dominance"],
+            ["Top Batting Records", "Top Bowling Figures", "All-Round Dominance"],
             horizontal=True
         )
 
