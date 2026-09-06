@@ -31,11 +31,15 @@ else:
 # Handle query parameters for seamless link navigation
 query_page = st.query_params.get("page")
 if query_page:
+    if query_page == "Schedule":
+        query_page = "Archives"
     st.session_state["nav_page"] = query_page
 elif "nav_page" not in st.session_state:
-    st.session_state["nav_page"] = "Live Scores"
+    st.session_state["nav_page"] = "Archives"
 
-current_page = st.session_state.get("nav_page", "Live Scores")
+current_page = st.session_state.get("nav_page", "Archives")
+if current_page == "Schedule":
+    current_page = "Archives"
 
 # Cricbuzz Official Stylesheet
 st.markdown(f"""
@@ -352,11 +356,10 @@ logo_img_tag = f'<img src="data:image/png;base64,{logo_b64}" height="30" style="
 navbar_html = f"""
 <div class="cb-header-bar">
     <div class="cb-nav-menu">
-        <a href="?page=Live+Scores" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
+        <a href="?page=Archives" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
             {logo_img_tag}
         </a>
         {get_nav_item("Live Scores", "Live Scores")}
-        {get_nav_item("Schedule", "Schedule")}
         {get_nav_item("Archives", "Archives")}
         <div class="cb-nav-dropdown">
             {get_nav_item("News", "News ▾")}
@@ -478,23 +481,7 @@ from pages_ui.teams_squads import render_teams_and_squads
 if current_page == "Live Scores":
     render_live_matches()
 
-# 2. SCHEDULE
-elif current_page == "Schedule":
-    st.markdown("### International & League Schedule")
-    st.caption("Live match fixtures and upcoming calendar from Cricbuzz API")
-    if recent_m:
-        df_sched = pd.DataFrame([{
-            "Match": m["title"],
-            "Format": m["format"],
-            "Series": m["series"],
-            "Venue": m.get("venue", "Stadium"),
-            "Status": m["status"]
-        } for m in recent_m])
-        st.dataframe(df_sched, use_container_width=True, hide_index=True)
-    else:
-        st.info("No fixtures available.")
-
-# 3. ARCHIVES (Houses 25 SQL Practice Questions & Analytics Engine)
+# 2. ARCHIVES (Houses 25 SQL Practice Questions & Analytics Engine)
 elif current_page == "Archives":
     st.markdown("""
     <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
