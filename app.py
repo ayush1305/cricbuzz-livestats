@@ -365,82 +365,81 @@ live_nav_item = get_nav_item("Live Scores", "Live Scores") if has_live_matches e
 
 navbar_html = f"""
 <div class="cb-header-bar">
-    <div class="cb-nav-menu">
-        <a href="?page=Teams" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">
-            {logo_img_tag}
-        </a>
-        {live_nav_item}
-        <div class="cb-nav-dropdown">
-            {get_nav_item("News", "News ▾")}
-            <div class="cb-dropdown-menu">
-                <a href="?page=News" target="_self">All News</a>
-                <a href="?page=News" target="_self">Cricbuzz Plus</a>
-                <a href="?page=News" target="_self">Latest Match Reports</a>
-                <a href="?page=News" target="_self">Spotlights & Interviews</a>
-            </div>
-        </div>
-        <div class="cb-nav-dropdown">
-            {get_nav_item("Series", "Series ▾")}
-            <div class="cb-dropdown-menu">
-                <a href="?page=Series" target="_self">International Tours</a>
-                <a href="?page=Series" target="_self">T20 Leagues (IPL, CPL)</a>
-                <a href="?page=Series" target="_self">All Tournaments</a>
-            </div>
-        </div>
-        <div class="cb-nav-dropdown">
-            {get_nav_item("Teams", "Teams ▾")}
-            <div class="cb-dropdown-menu" style="max-height: 420px; overflow-y: auto;">
-                <a href="?page=Teams&view=all" target="_self"><strong>All International Teams Overview</strong></a>
-                <a href="?page=Teams&team=India" target="_self">India</a>
-                <a href="?page=Teams&team=Australia" target="_self">Australia</a>
-                <a href="?page=Teams&team=England" target="_self">England</a>
-                <a href="?page=Teams&team=South+Africa" target="_self">South Africa</a>
-                <a href="?page=Teams&team=Pakistan" target="_self">Pakistan</a>
-                <a href="?page=Teams&team=New+Zealand" target="_self">New Zealand</a>
-                <a href="?page=Teams&team=Sri+Lanka" target="_self">Sri Lanka</a>
-                <a href="?page=Teams&team=Bangladesh" target="_self">Bangladesh</a>
-                <a href="?page=Teams&team=Afghanistan" target="_self">Afghanistan</a>
-                <a href="?page=Teams&team=West+Indies" target="_self">West Indies</a>
-                <a href="?page=Teams&team=Zimbabwe" target="_self">Zimbabwe</a>
-                <a href="?page=Teams&team=Ireland" target="_self">Ireland</a>
-                <a href="?page=Teams&team=Netherlands" target="_self">Netherlands</a>
-                <a href="?page=Teams&team=Scotland" target="_self">Scotland</a>
-                <a href="?page=Teams&team=United+States+of+America" target="_self">USA</a>
-                <a href="?page=Teams&team=Namibia" target="_self">Namibia</a>
-                <a href="?page=Teams&team=Nepal" target="_self">Nepal</a>
-                <a href="?page=Teams&team=United+Arab+Emirates" target="_self">UAE</a>
-            </div>
-        </div>
-        <div class="cb-nav-dropdown">
-            {get_nav_item("Rankings", "Rankings ▾")}
-            <div class="cb-dropdown-menu">
-                <a href="?page=Rankings" target="_self">ICC Rankings - Men</a>
-                <a href="?page=Rankings" target="_self">ICC Rankings - Women</a>
-                <a href="?page=Rankings" target="_self">Top Batsmen & Run Scorers</a>
-                <a href="?page=Rankings" target="_self">Top Bowlers & Wicket Takers</a>
-            </div>
-        </div>
-        <div class="cb-nav-dropdown">
-            {get_nav_item("More", "More ▾")}
-            <div class="cb-dropdown-menu">
-                <a href="?page=More&sub=sql" target="_self">25 SQL Practice Queries</a>
-                <a href="?page=More&sub=crud" target="_self">CRUD Operations (Manage Data)</a>
-                <a href="?page=More&sub=connect" target="_self">Connect SQL Database</a>
-                <a href="?page=More&sub=docs" target="_self">Architecture & API Docs</a>
-            </div>
-        </div>
-    </div>
-    <div class="cb-header-right">
-        <a href="?page=More&sub=connect" target="_self" class="cb-profile-btn" title="Account & SQL Database Connection">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-        </a>
-    </div>
+<div class="cb-nav-menu">
+<a href="?page=Teams" target="_self" class="cb-logo-wrap" title="Cricbuzz Home">{logo_img_tag}</a>
+{live_nav_item}
+<div class="cb-nav-dropdown">
+{get_nav_item("News", "News ▾")}
+<div class="cb-dropdown-menu">
+<a href="?page=News" target="_self">All News</a>
+<a href="?page=News" target="_self">Cricbuzz Plus</a>
+<a href="?page=News" target="_self">Latest Match Reports</a>
+<a href="?page=News" target="_self">Spotlights & Interviews</a>
+</div>
+</div>
+<div class="cb-nav-dropdown">
+{get_nav_item("Series", "Series ▾")}
+<div class="cb-dropdown-menu">
+<a href="?page=Series" target="_self">International Tours</a>
+<a href="?page=Series" target="_self">T20 Leagues (IPL, CPL)</a>
+<a href="?page=Series" target="_self">All Tournaments</a>
+</div>
+</div>
+<div class="cb-nav-dropdown">
+{get_nav_item("Teams", "Teams ▾")}
+<div class="cb-dropdown-menu" style="max-height: 420px; overflow-y: auto;">
+<a href="?page=Teams&view=all" target="_self"><strong>All International Teams Overview</strong></a>
+<a href="?page=Teams&team=India" target="_self">India</a>
+<a href="?page=Teams&team=Australia" target="_self">Australia</a>
+<a href="?page=Teams&team=England" target="_self">England</a>
+<a href="?page=Teams&team=South+Africa" target="_self">South Africa</a>
+<a href="?page=Teams&team=Pakistan" target="_self">Pakistan</a>
+<a href="?page=Teams&team=New+Zealand" target="_self">New Zealand</a>
+<a href="?page=Teams&team=Sri+Lanka" target="_self">Sri Lanka</a>
+<a href="?page=Teams&team=Bangladesh" target="_self">Bangladesh</a>
+<a href="?page=Teams&team=Afghanistan" target="_self">Afghanistan</a>
+<a href="?page=Teams&team=West+Indies" target="_self">West Indies</a>
+<a href="?page=Teams&team=Zimbabwe" target="_self">Zimbabwe</a>
+<a href="?page=Teams&team=Ireland" target="_self">Ireland</a>
+<a href="?page=Teams&team=Netherlands" target="_self">Netherlands</a>
+<a href="?page=Teams&team=Scotland" target="_self">Scotland</a>
+<a href="?page=Teams&team=United+States+of+America" target="_self">USA</a>
+<a href="?page=Teams&team=Namibia" target="_self">Namibia</a>
+<a href="?page=Teams&team=Nepal" target="_self">Nepal</a>
+<a href="?page=Teams&team=United+Arab+Emirates" target="_self">UAE</a>
+</div>
+</div>
+<div class="cb-nav-dropdown">
+{get_nav_item("Rankings", "Rankings ▾")}
+<div class="cb-dropdown-menu">
+<a href="?page=Rankings" target="_self">ICC Rankings - Men</a>
+<a href="?page=Rankings" target="_self">ICC Rankings - Women</a>
+<a href="?page=Rankings" target="_self">Top Batsmen & Run Scorers</a>
+<a href="?page=Rankings" target="_self">Top Bowlers & Wicket Takers</a>
+</div>
+</div>
+<div class="cb-nav-dropdown">
+{get_nav_item("More", "More ▾")}
+<div class="cb-dropdown-menu">
+<a href="?page=More&sub=sql" target="_self">25 SQL Practice Queries</a>
+<a href="?page=More&sub=crud" target="_self">CRUD Operations (Manage Data)</a>
+<a href="?page=More&sub=connect" target="_self">Connect SQL Database</a>
+<a href="?page=More&sub=docs" target="_self">Architecture & API Docs</a>
+</div>
+</div>
+</div>
+<div class="cb-header-right">
+<a href="?page=More&sub=connect" target="_self" class="cb-profile-btn" title="Account & SQL Database Connection">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+</a>
+</div>
 </div>
 """
-st.markdown(navbar_html, unsafe_allow_html=True)
+clean_navbar = " ".join(line.strip() for line in navbar_html.splitlines() if line.strip())
+st.markdown(clean_navbar, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # EXACT CRICBUZZ SUBBAR (MATCHES / SERIES TICKER)
@@ -453,16 +452,17 @@ if has_live_matches:
     subbar_html = f'<div class="cb-subbar"><span class="cb-matches-tag">MATCHES</span>{ticker_items_html}<a href="?page=Live+Scores" target="_self" class="cb-all-dropdown">ALL ▾</a></div>'
 else:
     subbar_html = """
-    <div class="cb-subbar">
-        <span class="cb-matches-tag">SERIES</span>
-        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>PAK vs ENG</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">Test Series</span></a>
-        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IREW vs ENGW</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">ODI Tour</span></a>
-        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>County Div 1</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">First Class</span></a>
-        <a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IPL & Leagues</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">T20 Calendar</span></a>
-        <a href="?page=Series" target="_self" class="cb-all-dropdown">ALL SERIES ▾</a>
-    </div>
-    """
-st.markdown(subbar_html, unsafe_allow_html=True)
+<div class="cb-subbar">
+<span class="cb-matches-tag">SERIES</span>
+<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>PAK vs ENG</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">Test Series</span></a>
+<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IREW vs ENGW</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">ODI Tour</span></a>
+<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>County Div 1</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">First Class</span></a>
+<a href="?page=Series" target="_self" class="cb-ticker-link"><strong>IPL & Leagues</strong> - <span class="cb-ticker-status" style="color: #60a5fa;">T20 Calendar</span></a>
+<a href="?page=Series" target="_self" class="cb-all-dropdown">ALL SERIES ▾</a>
+</div>
+"""
+clean_subbar = " ".join(line.strip() for line in subbar_html.splitlines() if line.strip())
+st.markdown(clean_subbar, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # VIEW ROUTING BASED ON ACTIVE CRICBUZZ MENU ITEM
@@ -525,14 +525,7 @@ elif current_page == "More":
         horizontal=True
     )
     if "SQL" in sub_option:
-        st.markdown("""
-        <div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-            <h4 style="margin: 0; color: #009270; font-weight: 800;">25 SQL Analytics Questions & Custom Console</h4>
-            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">
-                Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div style="background: #ffffff; border-left: 5px solid #009270; padding: 14px 18px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><h4 style="margin: 0; color: #009270; font-weight: 800;">25 SQL Analytics Questions & Custom Console</h4><p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">Execute all 25 production SQL queries (Beginner, Intermediate, Advanced) directly on the relational database.</p></div>""", unsafe_allow_html=True)
         render_sql_analytics()
     elif "CRUD" in sub_option:
         render_crud_operations()
