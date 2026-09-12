@@ -409,6 +409,11 @@ def sync_real_data(db_url: Optional[str] = None):
                 ROUND(COALESCE(AVG(bw.runs_conceded * 1.0 / NULLIF(bw.wickets_taken, 0)), 0.0), 2) AS bowling_avg,
                 ROUND(COALESCE(AVG(bw.economy_rate), 0.0), 2) AS economy_rate
             FROM players p
+            JOIN (
+                SELECT player_id FROM player_match_batting
+                UNION
+                SELECT player_id FROM player_match_bowling
+            ) active_p ON p.player_id = active_p.player_id
             LEFT JOIN player_match_batting b ON p.player_id = b.player_id
             LEFT JOIN player_match_bowling bw ON p.player_id = bw.player_id
             GROUP BY p.player_id;
