@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS teams (
 CREATE TABLE IF NOT EXISTS players (
     player_id INTEGER PRIMARY KEY,
     team_id INTEGER,
-    full_name VARCHAR(100) NOT NULL,
+    full_name VARCHAR(100) NOT NULL UNIQUE,
     country VARCHAR(100) NOT NULL,
     playing_role VARCHAR(50) NOT NULL, -- 'Batsman', 'Bowler', 'All-rounder', 'Wicket-keeper'
     batting_style VARCHAR(50),         -- 'Right-hand bat', 'Left-hand bat'
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS player_match_fielding (
 -- 9. PLAYER CAREER STATS SUMMARY
 CREATE TABLE IF NOT EXISTS player_career_stats (
     stat_id INTEGER PRIMARY KEY,
-    player_id INTEGER NOT NULL,
+    player_id INTEGER NOT NULL UNIQUE,
     format VARCHAR(20) NOT NULL,        -- 'Test', 'ODI', 'T20I'
     matches_played INTEGER DEFAULT 0,
     total_runs INTEGER DEFAULT 0,
@@ -132,11 +132,12 @@ CREATE TABLE IF NOT EXISTS player_career_stats (
     economy_rate REAL DEFAULT 0.0,
     catches INTEGER DEFAULT 0,
     stumpings INTEGER DEFAULT 0,
-    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
-    UNIQUE(player_id, format)
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE
 );
 
 -- Performance Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS idx_players_unique_name ON players(full_name);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_career_stats_player_id ON player_career_stats(player_id);
 CREATE INDEX IF NOT EXISTS idx_players_country ON players(country);
 CREATE INDEX IF NOT EXISTS idx_players_role ON players(playing_role);
 CREATE INDEX IF NOT EXISTS idx_matches_date ON matches(match_date);
