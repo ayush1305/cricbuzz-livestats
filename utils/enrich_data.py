@@ -252,5 +252,145 @@ def ensure_database_enriched(engine: Engine) -> None:
                     economy_rate = 5.2
                 WHERE matches_played = 0 OR (total_runs = 0 AND wickets_taken = 0)
             """))
+
+            # Correct existing matches foreign keys
+            conn.execute(text("UPDATE matches SET team2_id = 4 WHERE match_id = 180004"))
+            conn.execute(text("UPDATE matches SET venue_id = 55 WHERE match_id = 180001"))
+            conn.execute(text("UPDATE matches SET venue_id = 153 WHERE match_id = 180002"))
+            conn.execute(text("UPDATE matches SET venue_id = 11 WHERE match_id = 180003"))
+            conn.execute(text("UPDATE matches SET venue_id = 51 WHERE match_id = 180004"))
+            conn.execute(text("UPDATE matches SET venue_id = 11, team2_id = 4 WHERE match_id = 180005"))
+
+            # Seed authentic international matches
+            matches_data = [
+                (180006, 1, "India vs Australia - ICC Cricket World Cup Final 2023", "ODI", 2, 4, 51, "2023-11-19", 4, 6, "wickets", 1),
+                (180007, 1, "India vs Australia - ICC Men T20 World Cup Super 8 2024", "T20I", 2, 4, 55, "2024-06-24", 2, 24, "runs", 1),
+                (180008, 1, "India vs Australia - 1st Test Border-Gavaskar Trophy 2023", "Test", 2, 4, 46, "2023-02-09", 2, 132, "runs", 1),
+                (180009, 1, "India vs Australia - 2nd Test Border-Gavaskar Trophy 2023", "Test", 2, 4, 51, "2023-02-17", 2, 6, "wickets", 1),
+                (180010, 1, "India vs Australia - 3rd ODI Australia Tour of India 2023", "ODI", 2, 4, 11, "2023-09-27", 4, 66, "runs", 1),
+                (180011, 1, "India vs Pakistan - ICC Men T20 World Cup 2024", "T20I", 2, 3, 55, "2024-06-09", 2, 6, "runs", 1),
+                (180012, 1, "India vs Pakistan - ICC Cricket World Cup 2023", "ODI", 2, 3, 51, "2023-10-14", 2, 7, "wickets", 1),
+                (180013, 1, "India vs Pakistan - Asia Cup Super Four 2023", "ODI", 2, 3, 153, "2023-09-11", 2, 228, "runs", 1),
+                (180014, 1, "England vs Australia - ICC Men T20 World Cup 2024", "T20I", 9, 4, 55, "2024-06-08", 4, 36, "runs", 1),
+                (180015, 1, "England vs Australia - 5th Test The Ashes 2023", "Test", 9, 4, 12, "2023-07-27", 9, 49, "runs", 1),
+                (180016, 1, "England vs Australia - 3rd Test The Ashes 2023", "Test", 9, 4, 20, "2023-07-06", 9, 3, "wickets", 1),
+                (180017, 1, "England vs Australia - ICC Cricket World Cup 2023", "ODI", 9, 4, 51, "2023-11-04", 4, 33, "runs", 1),
+                (180018, 1, "India vs England - ICC Men T20 World Cup Semi-Final 2024", "T20I", 2, 9, 54, "2024-06-27", 2, 68, "runs", 1),
+                (180019, 1, "India vs England - 5th Test England Tour of India 2024", "Test", 2, 9, 46, "2024-03-07", 2, 64, "runs", 1),
+                (180020, 1, "India vs England - ICC Cricket World Cup 2023", "ODI", 2, 9, 11, "2023-10-29", 2, 100, "runs", 1)
+            ]
+            for m in matches_data:
+                conn.execute(text("""
+                    INSERT INTO matches (
+                        match_id, series_id, match_description, match_type, team1_id, team2_id,
+                        venue_id, match_date, toss_winner_id, toss_decision, winner_id, victory_margin, victory_type, is_completed
+                    ) VALUES (:mid, :sid, :desc, :mtype, :t1, :t2, :vid, :mdate, NULL, NULL, :wid, :vmar, :vtype, :comp)
+                    ON CONFLICT(match_id) DO UPDATE SET
+                        match_description = excluded.match_description,
+                        match_type = excluded.match_type,
+                        team1_id = excluded.team1_id,
+                        team2_id = excluded.team2_id,
+                        venue_id = excluded.venue_id,
+                        match_date = excluded.match_date,
+                        winner_id = excluded.winner_id,
+                        victory_margin = excluded.victory_margin,
+                        victory_type = excluded.victory_type,
+                        is_completed = excluded.is_completed
+                """), {
+                    "mid": m[0], "sid": m[1], "desc": m[2], "mtype": m[3], "t1": m[4], "t2": m[5],
+                    "vid": m[6], "mdate": m[7], "wid": m[8], "vmar": m[9], "vtype": m[10], "comp": m[11]
+                })
+
+            # Seed authentic batting records
+            batting_records = [
+                (1800061, 180006, 576, 2, 1, 1, 47, 31, 4, 3, 151.61, 1),
+                (1800071, 180007, 576, 2, 1, 1, 92, 41, 7, 8, 224.39, 1),
+                (1800111, 180011, 576, 2, 1, 1, 13, 12, 1, 1, 108.33, 1),
+                (1800121, 180012, 576, 2, 2, 1, 86, 63, 6, 6, 136.51, 1),
+                (1800181, 180018, 576, 2, 1, 1, 57, 39, 6, 2, 146.15, 1),
+                (1800191, 180019, 576, 2, 1, 1, 103, 162, 14, 3, 63.58, 1),
+                (1800201, 180020, 576, 2, 1, 1, 87, 101, 10, 3, 86.14, 1),
+                (1800062, 180006, 1413, 2, 1, 3, 54, 63, 4, 0, 85.71, 1),
+                (1800072, 180007, 1413, 2, 1, 2, 0, 5, 0, 0, 0.0, 1),
+                (1800112, 180011, 1413, 2, 1, 2, 4, 3, 1, 0, 133.33, 1),
+                (1800122, 180012, 1413, 2, 2, 3, 16, 18, 3, 0, 88.89, 1),
+                (1800132, 180013, 1413, 2, 1, 3, 122, 94, 9, 3, 129.79, 0),
+                (1800182, 180018, 1413, 2, 1, 2, 9, 9, 0, 1, 100.0, 1),
+                (1800081, 180008, 587, 2, 1, 7, 70, 185, 9, 0, 37.84, 1),
+                (1800091, 180009, 587, 2, 1, 7, 26, 74, 3, 0, 35.14, 1),
+                (1800183, 180018, 587, 2, 1, 6, 17, 9, 2, 0, 188.89, 0),
+                (1800192, 180019, 587, 2, 1, 6, 15, 50, 1, 0, 30.00, 1),
+                (1800202, 180020, 587, 2, 1, 7, 8, 13, 0, 0, 61.54, 1),
+                (1800012, 180001, 587, 2, 1, 7, 2, 2, 0, 0, 100.0, 1),
+                (1800063, 180006, 8497, 4, 2, 2, 137, 120, 15, 4, 114.17, 1),
+                (1800073, 180007, 8497, 4, 2, 1, 76, 43, 9, 4, 176.74, 1),
+                (1800141, 180014, 8497, 4, 1, 1, 34, 18, 2, 3, 188.89, 1),
+                (1800171, 180017, 8497, 4, 1, 1, 11, 10, 2, 0, 110.00, 1),
+                (1800101, 180010, 8497, 4, 1, 2, 28, 28, 3, 1, 100.00, 1),
+                (1800064, 180006, 2250, 4, 2, 4, 4, 9, 1, 0, 44.44, 1),
+                (1800151, 180015, 2250, 4, 2, 4, 71, 123, 6, 0, 57.72, 1),
+                (1800161, 180016, 2250, 4, 2, 4, 22, 52, 2, 0, 42.31, 1),
+                (1800172, 180017, 2250, 4, 1, 3, 44, 52, 3, 0, 84.62, 1),
+                (1800102, 180010, 2250, 4, 1, 3, 74, 61, 8, 1, 121.31, 1),
+                (1800113, 180011, 8359, 3, 2, 1, 13, 10, 2, 0, 130.0, 1),
+                (1800123, 180012, 8359, 3, 1, 3, 50, 58, 7, 0, 86.21, 1),
+                (1800133, 180013, 8359, 3, 2, 3, 10, 24, 2, 0, 41.67, 1),
+                (1800152, 180015, 8019, 9, 1, 4, 91, 106, 11, 1, 85.85, 1),
+                (1800162, 180016, 8019, 9, 1, 4, 19, 40, 2, 0, 47.50, 1),
+                (1800193, 180019, 8019, 9, 1, 4, 84, 128, 12, 0, 65.63, 1),
+                (1800203, 180020, 8019, 9, 2, 3, 0, 1, 0, 0, 0.0, 1)
+            ]
+            for b in batting_records:
+                conn.execute(text("""
+                    INSERT INTO player_match_batting (
+                        stat_id, match_id, player_id, team_id, innings_number, batting_position,
+                        runs_scored, balls_faced, fours, sixes, strike_rate, is_out
+                    ) VALUES (:sid, :mid, :pid, :tid, :inn, :pos, :runs, :bf, :f, :s, :sr, :out)
+                    ON CONFLICT(stat_id) DO UPDATE SET
+                        runs_scored = excluded.runs_scored,
+                        balls_faced = excluded.balls_faced,
+                        fours = excluded.fours,
+                        sixes = excluded.sixes,
+                        strike_rate = excluded.strike_rate,
+                        is_out = excluded.is_out
+                """), {
+                    "sid": b[0], "mid": b[1], "pid": b[2], "tid": b[3], "inn": b[4],
+                    "pos": b[5], "runs": b[6], "bf": b[7], "f": b[8], "s": b[9], "sr": b[10], "out": b[11]
+                })
+
+            # Seed authentic bowling records
+            bowling_records = [
+                (1800013, 180001, 9311, 2, 2, 4.0, 0, 18, 2, 4.50),
+                (1800065, 180006, 9311, 2, 2, 9.0, 2, 43, 2, 4.78),
+                (1800074, 180007, 9311, 2, 2, 4.0, 0, 29, 2, 7.25),
+                (1800114, 180011, 9311, 2, 2, 4.0, 0, 14, 3, 3.50),
+                (1800184, 180018, 9311, 2, 2, 2.4, 0, 12, 2, 4.50),
+                (1800204, 180020, 9311, 2, 2, 6.0, 1, 32, 3, 5.33),
+                (1800082, 180008, 587, 2, 2, 22.0, 8, 47, 5, 2.14),
+                (1800092, 180009, 587, 2, 2, 12.1, 1, 42, 7, 3.45),
+                (1800205, 180020, 587, 2, 2, 7.0, 1, 16, 1, 2.29),
+                (1800194, 180019, 587, 2, 2, 14.0, 2, 51, 4, 3.64),
+                (1800066, 180006, 8095, 4, 1, 10.0, 0, 34, 2, 3.40),
+                (1800075, 180007, 8095, 4, 1, 4.0, 0, 48, 0, 12.00),
+                (1800153, 180015, 8095, 4, 1, 18.0, 2, 68, 4, 3.78),
+                (1800173, 180017, 8095, 4, 2, 10.0, 1, 49, 2, 4.90)
+            ]
+            for bw in bowling_records:
+                conn.execute(text("""
+                    INSERT INTO player_match_bowling (
+                        stat_id, match_id, player_id, team_id, innings_number,
+                        overs_bowled, maidens, runs_conceded, wickets_taken, economy_rate
+                    ) VALUES (:sid, :mid, :pid, :tid, :inn, :ovr, :mdn, :runs, :wkts, :econ)
+                    ON CONFLICT(stat_id) DO UPDATE SET
+                        overs_bowled = excluded.overs_bowled,
+                        maidens = excluded.maidens,
+                        runs_conceded = excluded.runs_conceded,
+                        wickets_taken = excluded.wickets_taken,
+                        economy_rate = excluded.economy_rate
+                """), {
+                    "sid": bw[0], "mid": bw[1], "pid": bw[2], "tid": bw[3], "inn": bw[4],
+                    "ovr": bw[5], "mdn": bw[6], "runs": bw[7], "wkts": bw[8], "econ": bw[9]
+                })
+
     except Exception as e:
         pass
