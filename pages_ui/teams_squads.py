@@ -41,7 +41,7 @@ def render_teams_and_squads():
             t.team_name, 
             t.team_code, 
             t.country, 
-            COUNT(p.player_id) AS squad_size,
+            COUNT(DISTINCT p.player_id) AS squad_size,
             COALESCE(SUM(cs.total_runs), 0) AS total_runs,
             COALESCE(SUM(cs.wickets_taken), 0) AS total_wickets,
             COALESCE(MAX(cs.highest_score), 0) AS highest_score
@@ -204,31 +204,71 @@ def render_teams_and_squads():
 
         st.markdown("---")
 
-        # 2. Squad Table with full stats
-        st.markdown(f"#### {sel_tname} Official Squad")
-        
-        df_squad = execute_query("""
-            SELECT 
-                p.player_id,
-                p.full_name AS "Player",
-                p.playing_role AS "Role",
-                p.batting_style AS "Batting Style",
-                p.bowling_style AS "Bowling Style",
-                COALESCE(cs.matches_played, 0) AS "Matches",
-                COALESCE(cs.total_runs, 0) AS "Runs",
-                COALESCE(cs.batting_avg, 0.0) AS "Bat Avg",
-                COALESCE(cs.strike_rate, 0.0) AS "Strike Rate",
-                COALESCE(cs.centuries, 0) AS "100s",
-                COALESCE(cs.fifties, 0) AS "50s",
-                COALESCE(cs.highest_score, 0) AS "High Score",
-                COALESCE(cs.wickets_taken, 0) AS "Wickets",
-                COALESCE(cs.bowling_avg, 0.0) AS "Bowl Avg",
-                COALESCE(cs.economy_rate, 0.0) AS "Economy"
-            FROM players p
-            LEFT JOIN player_career_stats cs ON p.player_id = cs.player_id
-            WHERE p.team_id = :tid
-            ORDER BY cs.total_runs DESC, cs.wickets_taken DESC
-        """, {"tid": sel_tid})
+        # 2. Squad Table with full stats (deduplicated per player)
+        col_sq_title, col_sq_fmt = st.columns([3, 1])
+        with col_sq_title:
+            st.markdown(f"#### {sel_tname} Official Squad")
+        with col_sq_fmt:
+            format_opt = st.selectbox(
+                "Format Filter:",
+                ["All Formats (Combined)", "ODI", "Test", "T20I", "IPL"],
+                index=0,
+                key=f"sq_fmt_{sel_tid}"
+            )
+
+        if format_opt == "All Formats (Combined)":
+            df_squad = execute_query("""
+                SELECT 
+                    p.player_id,
+                    p.full_name AS "Player",
+                    p.playing_role AS "Role",
+                    p.batting_style AS "Batting Style",
+                    p.bowling_style AS "Bowling Style",
+                    COALESCE(SUM(cs.matches_played), 0) AS "Matches",
+                    COALESCE(SUM(cs.total_runs), 0) AS "Runs",
+                    ROUND(
+                        CASE 
+                            WHEN SUM(cs.matches_played) > 0 AND SUM(cs.total_runs) > 0 
+                            THEN CAST(SUM(cs.total_runs) AS REAL) / NULLIF(SUM(CASE WHEN cs.batting_avg > 0 THEN cs.total_runs / cs.batting_avg ELSE 1 END), 0)
+                            ELSE COALESCE(MAX(cs.batting_avg), 0)
+                        END, 2
+                    ) AS "Bat Avg",
+                    ROUND(COALESCE(AVG(CASE WHEN cs.strike_rate > 0 THEN cs.strike_rate END), 0), 2) AS "Strike Rate",
+                    COALESCE(SUM(cs.centuries), 0) AS "100s",
+                    COALESCE(SUM(cs.fifties), 0) AS "50s",
+                    COALESCE(MAX(cs.highest_score), 0) AS "High Score",
+                    COALESCE(SUM(cs.wickets_taken), 0) AS "Wickets",
+                    ROUND(COALESCE(AVG(CASE WHEN cs.bowling_avg > 0 THEN cs.bowling_avg END), 0), 2) AS "Bowl Avg",
+                    ROUND(COALESCE(AVG(CASE WHEN cs.economy_rate > 0 THEN cs.economy_rate END), 0), 2) AS "Economy"
+                FROM players p
+                LEFT JOIN player_career_stats cs ON p.player_id = cs.player_id
+                WHERE p.team_id = :tid
+                GROUP BY p.player_id, p.full_name, p.playing_role, p.batting_style, p.bowling_style
+                ORDER BY "Runs" DESC, "Wickets" DESC
+            """, {"tid": sel_tid})
+        else:
+            df_squad = execute_query("""
+                SELECT 
+                    p.player_id,
+                    p.full_name AS "Player",
+                    p.playing_role AS "Role",
+                    p.batting_style AS "Batting Style",
+                    p.bowling_style AS "Bowling Style",
+                    COALESCE(cs.matches_played, 0) AS "Matches",
+                    COALESCE(cs.total_runs, 0) AS "Runs",
+                    COALESCE(cs.batting_avg, 0.0) AS "Bat Avg",
+                    COALESCE(cs.strike_rate, 0.0) AS "Strike Rate",
+                    COALESCE(cs.centuries, 0) AS "100s",
+                    COALESCE(cs.fifties, 0) AS "50s",
+                    COALESCE(cs.highest_score, 0) AS "High Score",
+                    COALESCE(cs.wickets_taken, 0) AS "Wickets",
+                    COALESCE(cs.bowling_avg, 0.0) AS "Bowl Avg",
+                    COALESCE(cs.economy_rate, 0.0) AS "Economy"
+                FROM players p
+                LEFT JOIN player_career_stats cs ON p.player_id = cs.player_id AND cs.format = :fmt
+                WHERE p.team_id = :tid
+                ORDER BY cs.total_runs DESC, cs.wickets_taken DESC
+            """, {"tid": sel_tid, "fmt": format_opt})
 
         st.dataframe(
             df_squad.drop(columns=["player_id"]),
@@ -240,7 +280,7 @@ def render_teams_and_squads():
 
         # 3. Individual Player Stats Inspector
         st.markdown("#### Player Profile & Performance Dashboard")
-        player_options = df_squad["Player"].tolist()
+        player_options = df_squad["Player"].drop_duplicates().tolist()
         
         if not player_options:
             return
