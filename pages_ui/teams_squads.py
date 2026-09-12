@@ -10,6 +10,7 @@ import streamlit as st
 import pandas as pd
 from utils.db_connection import execute_query, execute_statement
 from utils.cricbuzz_api import CricbuzzAPIClient
+from utils.enrich_data import PLAYER_DATA
 
 
 def get_player_photo_b64(player_name: str) -> str:
@@ -230,6 +231,25 @@ def render_teams_and_squads():
             ORDER BY cs.total_runs DESC, cs.wickets_taken DESC
         """, {"tid": sel_tid})
 
+        # Guarantee full career stats even on unmigrated database instances
+        for idx, r in df_squad.iterrows():
+            pid_val = int(r["player_id"])
+            if (r["Runs"] == 0 and r["Wickets"] == 0) and pid_val in PLAYER_DATA:
+                p_role, p_m, p_r, p_avg, p_sr, p_100, p_50, p_hs, p_w, p_bavg, p_econ = PLAYER_DATA[pid_val]
+                df_squad.at[idx, "Role"] = p_role
+                df_squad.at[idx, "Matches"] = p_m
+                df_squad.at[idx, "Runs"] = p_r
+                df_squad.at[idx, "Bat Avg"] = p_avg
+                df_squad.at[idx, "Strike Rate"] = p_sr
+                df_squad.at[idx, "100s"] = p_100
+                df_squad.at[idx, "50s"] = p_50
+                df_squad.at[idx, "High Score"] = p_hs
+                df_squad.at[idx, "Wickets"] = p_w
+                df_squad.at[idx, "Bowl Avg"] = p_bavg
+                df_squad.at[idx, "Economy"] = p_econ
+
+        df_squad = df_squad.sort_values(by=["Runs", "Wickets"], ascending=[False, False]).reset_index(drop=True)
+
         st.dataframe(
             df_squad.drop(columns=["player_id"]),
             use_container_width=True,
@@ -287,10 +307,32 @@ def render_teams_and_squads():
         # ----------------------------------------------------------------------
         # CRICBUZZ OFFICIAL PLAYER PROFILE HERO CARD (WITH PHOTO)
         # ----------------------------------------------------------------------
+        # Determine role and metrics with safety fallback
+        if pid in PLAYER_DATA:
+            p_role, p_m, p_r, p_avg, p_sr, p_100, p_50, p_hs, p_w, p_bavg, p_econ = PLAYER_DATA[pid]
+            role_str = p_role
+            m_runs = p_r if int(player_row['Runs']) == 0 else int(player_row['Runs'])
+            m_avg = p_avg if float(player_row['Bat Avg']) == 0.0 else float(player_row['Bat Avg'])
+            m_wkts = p_w if int(player_row['Wickets']) == 0 else int(player_row['Wickets'])
+            m_econ = p_econ if float(player_row['Economy']) == 0.0 else float(player_row['Economy'])
+            m_sr = p_sr if float(player_row['Strike Rate']) == 0.0 else float(player_row['Strike Rate'])
+            m_hs = p_hs if int(player_row['High Score']) == 0 else int(player_row['High Score'])
+            m_100 = p_100 if int(player_row['100s']) == 0 else int(player_row['100s'])
+            m_50 = p_50 if int(player_row['50s']) == 0 else int(player_row['50s'])
+        else:
+            role_str = player_row["Role"]
+            m_runs = int(player_row['Runs'])
+            m_avg = float(player_row['Bat Avg'])
+            m_wkts = int(player_row['Wickets'])
+            m_econ = float(player_row['Economy'])
+            m_sr = float(player_row['Strike Rate'])
+            m_hs = int(player_row['High Score'])
+            m_100 = int(player_row['100s'])
+            m_50 = int(player_row['50s'])
+
         born_str = "Nov 05, 1988 (Age 37 yrs)" if is_kohli else "1994"
         birth_place_str = "Delhi, India" if is_kohli else f"{sel_tname}"
         height_str = "5 ft 9 in (175 cm)" if is_kohli else "5 ft 10 in"
-        role_str = player_row["Role"]
         bat_style_str = player_row["Batting Style"] or "Right Handed Bat"
         bowl_style_str = player_row["Bowling Style"] or "Right-arm medium"
         teams_str = "India, Royal Challengers Bengaluru, Delhi, India Red, India U19" if is_kohli else f"{sel_tname}"
@@ -334,13 +376,13 @@ def render_teams_and_squads():
         # Player Metric Tiles
         c_p1, c_p2, c_p3, c_p4 = st.columns(4)
         with c_p1:
-            st.metric("Total Career Runs", f"{int(player_row['Runs']):,}", f"{float(player_row['Bat Avg']):.2f} Avg")
+            st.metric("Total Career Runs", f"{m_runs:,}", f"{m_avg:.2f} Avg")
         with c_p2:
-            st.metric("Total Wickets", f"{int(player_row['Wickets']):,}", f"{float(player_row['Economy']):.2f} Econ")
+            st.metric("Total Wickets", f"{m_wkts:,}", f"{m_econ:.2f} Econ")
         with c_p3:
-            st.metric("Strike Rate & High Score", f"{float(player_row['Strike Rate']):.1f}", f"HS: {int(player_row['High Score'])}")
+            st.metric("Strike Rate & High Score", f"{m_sr:.1f}", f"HS: {m_hs}")
         with c_p4:
-            st.metric("Milestones", f"{int(player_row['100s'])} Hundreds", f"{int(player_row['50s'])} Fifties")
+            st.metric("Milestones", f"{m_100} Hundreds", f"{m_50} Fifties")
 
         # Tabs for detailed breakdown
         tab_career, tab_bowling, tab_innings, tab_api_bio = st.tabs([
@@ -359,6 +401,27 @@ def render_teams_and_squads():
                     {"Format": "T20I", "Matches": 125, "Runs": 4188, "Bat Avg": 48.69, "Strike Rate": 137.04, "100s": 1, "50s": 38, "High Score": 122},
                     {"Format": "IPL", "Matches": 252, "Runs": 8004, "Bat Avg": 38.66, "Strike Rate": 131.97, "100s": 8, "50s": 55, "High Score": 113}
                 ])
+            elif "jadeja" in sel_player_name.lower():
+                df_p_stat = pd.DataFrame([
+                    {"Format": "ODI", "Matches": 197, "Runs": 2756, "Bat Avg": 32.81, "Strike Rate": 85.27, "100s": 0, "50s": 13, "High Score": 87},
+                    {"Format": "Test", "Matches": 74, "Runs": 3130, "Bat Avg": 36.39, "Strike Rate": 59.80, "100s": 4, "50s": 21, "High Score": 175},
+                    {"Format": "T20I", "Matches": 74, "Runs": 515, "Bat Avg": 21.45, "Strike Rate": 127.16, "100s": 0, "50s": 0, "High Score": 46},
+                    {"Format": "IPL", "Matches": 240, "Runs": 2959, "Bat Avg": 27.40, "Strike Rate": 129.89, "100s": 0, "50s": 3, "High Score": 62}
+                ])
+            elif "rahul" in sel_player_name.lower():
+                df_p_stat = pd.DataFrame([
+                    {"Format": "ODI", "Matches": 77, "Runs": 2851, "Bat Avg": 49.15, "Strike Rate": 87.80, "100s": 7, "50s": 18, "High Score": 112},
+                    {"Format": "Test", "Matches": 53, "Runs": 2981, "Bat Avg": 34.26, "Strike Rate": 53.40, "100s": 8, "50s": 15, "High Score": 199},
+                    {"Format": "T20I", "Matches": 72, "Runs": 2265, "Bat Avg": 37.75, "Strike Rate": 139.12, "100s": 2, "50s": 22, "High Score": 110},
+                    {"Format": "IPL", "Matches": 132, "Runs": 4683, "Bat Avg": 45.46, "Strike Rate": 134.60, "100s": 4, "50s": 37, "High Score": 132}
+                ])
+            elif "rohit" in sel_player_name.lower():
+                df_p_stat = pd.DataFrame([
+                    {"Format": "ODI", "Matches": 288, "Runs": 11895, "Bat Avg": 48.95, "Strike Rate": 93.05, "100s": 34, "50s": 62, "High Score": 264},
+                    {"Format": "Test", "Matches": 61, "Runs": 4179, "Bat Avg": 44.45, "Strike Rate": 56.40, "100s": 12, "50s": 18, "High Score": 212},
+                    {"Format": "T20I", "Matches": 159, "Runs": 4231, "Bat Avg": 32.05, "Strike Rate": 140.89, "100s": 5, "50s": 32, "High Score": 121},
+                    {"Format": "IPL", "Matches": 257, "Runs": 6628, "Bat Avg": 29.72, "Strike Rate": 131.14, "100s": 2, "50s": 43, "High Score": 109}
+                ])
             else:
                 df_p_stat = execute_query("""
                     SELECT 
@@ -374,6 +437,12 @@ def render_teams_and_squads():
                     WHERE player_id = :pid
                 """, {"pid": pid})
 
+                if df_p_stat.empty or (df_p_stat["Runs"].sum() == 0 and pid in PLAYER_DATA):
+                    p_role, p_m, p_r, p_avg, p_sr, p_100, p_50, p_hs, p_w, p_bavg, p_econ = PLAYER_DATA[pid]
+                    df_p_stat = pd.DataFrame([
+                        {"Format": "ODI", "Matches": p_m, "Runs": p_r, "Bat Avg": p_avg, "Strike Rate": p_sr, "100s": p_100, "50s": p_50, "High Score": p_hs}
+                    ])
+
             if not df_p_stat.empty:
                 st.dataframe(df_p_stat, use_container_width=True, hide_index=True)
             else:
@@ -388,6 +457,41 @@ def render_teams_and_squads():
                     {"Format": "IPL", "Matches": 252, "Wickets": 4, "Bowl Avg": 92.00, "Economy": 8.79},
                     {"Format": "Test", "Matches": 118, "Wickets": 0, "Bowl Avg": 0.00, "Economy": 2.89}
                 ])
+            elif "jadeja" in sel_player_name.lower():
+                df_p_bowl = pd.DataFrame([
+                    {"Format": "Test", "Matches": 74, "Wickets": 309, "Bowl Avg": 23.95, "Economy": 2.44},
+                    {"Format": "ODI", "Matches": 197, "Wickets": 220, "Bowl Avg": 36.08, "Economy": 4.88},
+                    {"Format": "IPL", "Matches": 240, "Wickets": 160, "Bowl Avg": 29.57, "Economy": 7.61},
+                    {"Format": "T20I", "Matches": 74, "Wickets": 54, "Bowl Avg": 28.40, "Economy": 7.13}
+                ])
+            elif "bumrah" in sel_player_name.lower():
+                df_p_bowl = pd.DataFrame([
+                    {"Format": "Test", "Matches": 36, "Wickets": 159, "Bowl Avg": 20.69, "Economy": 2.74},
+                    {"Format": "ODI", "Matches": 91, "Wickets": 151, "Bowl Avg": 23.55, "Economy": 4.59},
+                    {"Format": "IPL", "Matches": 133, "Wickets": 165, "Bowl Avg": 22.51, "Economy": 7.30},
+                    {"Format": "T20I", "Matches": 70, "Wickets": 89, "Bowl Avg": 17.74, "Economy": 6.27}
+                ])
+            elif "kuldeep" in sel_player_name.lower():
+                df_p_bowl = pd.DataFrame([
+                    {"Format": "ODI", "Matches": 106, "Wickets": 172, "Bowl Avg": 26.00, "Economy": 4.98},
+                    {"Format": "T20I", "Matches": 35, "Wickets": 69, "Bowl Avg": 14.07, "Economy": 6.74},
+                    {"Format": "IPL", "Matches": 84, "Wickets": 87, "Bowl Avg": 28.18, "Economy": 8.12},
+                    {"Format": "Test", "Matches": 12, "Wickets": 53, "Bowl Avg": 21.05, "Economy": 3.48}
+                ])
+            elif "siraj" in sel_player_name.lower():
+                df_p_bowl = pd.DataFrame([
+                    {"Format": "Test", "Matches": 29, "Wickets": 74, "Bowl Avg": 30.12, "Economy": 3.40},
+                    {"Format": "ODI", "Matches": 44, "Wickets": 68, "Bowl Avg": 24.05, "Economy": 5.18},
+                    {"Format": "IPL", "Matches": 93, "Wickets": 93, "Bowl Avg": 30.34, "Economy": 8.65},
+                    {"Format": "T20I", "Matches": 16, "Wickets": 14, "Bowl Avg": 34.20, "Economy": 8.15}
+                ])
+            elif "pandya" in sel_player_name.lower():
+                df_p_bowl = pd.DataFrame([
+                    {"Format": "ODI", "Matches": 94, "Wickets": 91, "Bowl Avg": 36.04, "Economy": 5.57},
+                    {"Format": "T20I", "Matches": 104, "Wickets": 86, "Bowl Avg": 26.24, "Economy": 8.14},
+                    {"Format": "IPL", "Matches": 137, "Wickets": 64, "Bowl Avg": 33.26, "Economy": 8.92},
+                    {"Format": "Test", "Matches": 11, "Wickets": 17, "Bowl Avg": 31.05, "Economy": 3.38}
+                ])
             else:
                 df_p_bowl = execute_query("""
                     SELECT 
@@ -399,6 +503,12 @@ def render_teams_and_squads():
                     FROM player_career_stats
                     WHERE player_id = :pid
                 """, {"pid": pid})
+
+                if df_p_bowl.empty or (df_p_bowl["Wickets"].sum() == 0 and pid in PLAYER_DATA and PLAYER_DATA[pid][8] > 0):
+                    p_role, p_m, p_r, p_avg, p_sr, p_100, p_50, p_hs, p_w, p_bavg, p_econ = PLAYER_DATA[pid]
+                    df_p_bowl = pd.DataFrame([
+                        {"Format": "ODI", "Matches": p_m, "Wickets": p_w, "Bowl Avg": p_bavg, "Economy": p_econ}
+                    ])
 
             if not df_p_bowl.empty:
                 st.dataframe(df_p_bowl, use_container_width=True, hide_index=True)

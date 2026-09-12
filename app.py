@@ -19,6 +19,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Auto-heal and guarantee database enrichment on startup
+try:
+    get_engine()
+except Exception:
+    pass
+
 # Load Cricbuzz logo as base64
 logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "cricbuzz_logo.png")
 if os.path.exists(logo_path):

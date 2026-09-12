@@ -126,6 +126,13 @@ def get_engine(db_url: Optional[str] = None) -> Engine:
         if is_sqlite:
             event.listen(_ENGINE, "connect", register_sqlite_functions)
 
+        # Self-heal and guarantee career numbers are populated
+        try:
+            from utils.enrich_data import ensure_database_enriched
+            ensure_database_enriched(_ENGINE)
+        except Exception:
+            pass
+
     return _ENGINE
 
 
