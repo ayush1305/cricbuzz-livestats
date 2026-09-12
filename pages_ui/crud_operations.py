@@ -97,32 +97,62 @@ def render_player_crud():
             submit_add = st.form_submit_button("Save Player to Database", type="primary")
 
         if submit_add:
-            if not name.strip():
+            clean_name = name.strip()
+            if not clean_name:
                 st.error("Player name cannot be empty.")
             else:
-                try:
-                    # Determine next ID
-                    df_max = execute_query("SELECT COALESCE(MAX(player_id), 0) + 1 AS next_id FROM players")
-                    new_id = int(df_max["next_id"][0])
-                    team_id = team_map.get(sel_team)
+                # 1. Proactive check if player with this exact name already exists
+                existing = execute_query(
+                    "SELECT player_id, full_name, country FROM players WHERE LOWER(TRIM(full_name)) = LOWER(:name)",
+                    {"name": clean_name}
+                )
+                if not existing.empty:
+                    ex_id = int(existing["player_id"].values[0])
+                    ex_country = existing["country"].values[0]
+                    st.warning(
+                        f"⚠️ **Duplicate Player Detected**: A player named **'{clean_name}'** is already registered in the database "
+                        f"(Player ID: #{ex_id}, Country: {ex_country}).\n\n"
+                        f"To prevent duplicate statistics (e.g. multiple entries for the same player), each player's name must be unique. "
+                        f"If this is a different cricketer with the same name, please include a differentiator (such as a middle initial or '{clean_name} Jr')."
+                    )
+                else:
+                    try:
+                        # Determine next ID safely
+                        df_max = execute_query("SELECT COALESCE(MAX(player_id), 0) + 1 AS next_id FROM players")
+                        new_id = int(df_max["next_id"][0])
+                        team_id = team_map.get(sel_team)
 
-                    stmt = """
-                    INSERT INTO players (player_id, team_id, full_name, country, playing_role, batting_style, bowling_style, debut_year)
-                    VALUES (:pid, :tid, :name, :country, :role, :bat, :bowl, :debut)
-                    """
-                    execute_statement(stmt, {
-                        "pid": new_id,
-                        "tid": team_id,
-                        "name": name.strip(),
-                        "country": country.strip(),
-                        "role": role,
-                        "bat": bat_style,
-                        "bowl": None if bowl_style == "None" else bowl_style,
-                        "debut": int(debut)
-                    })
-                    st.success(f"Player '{name}' successfully registered with ID #{new_id}!")
-                except Exception as e:
-                    st.error(f"Failed to create player: {str(e)}")
+                        stmt = """
+                        INSERT INTO players (player_id, team_id, full_name, country, playing_role, batting_style, bowling_style, debut_year)
+                        VALUES (:pid, :tid, :name, :country, :role, :bat, :bowl, :debut)
+                        """
+                        execute_statement(stmt, {
+                            "pid": new_id,
+                            "tid": team_id,
+                            "name": clean_name,
+                            "country": country.strip(),
+                            "role": role,
+                            "bat": bat_style,
+                            "bowl": None if bowl_style == "None" else bowl_style,
+                            "debut": int(debut)
+                        })
+
+                        # Initialize starter career stats entry so profile views don't show blank/error
+                        execute_statement("""
+                            INSERT INTO player_career_stats (
+                                stat_id, player_id, format, matches_played, total_runs, batting_avg, strike_rate,
+                                centuries, fifties, highest_score, wickets_taken, bowling_avg, economy_rate, catches, stumpings
+                            ) VALUES (:sid, :pid, 'All Formats', 0, 0, 0.0, 0.0, 0, 0, 0, 0, 0.0, 0.0, 0, 0)
+                            ON CONFLICT(player_id) DO NOTHING;
+                        """, {"sid": new_id, "pid": new_id})
+
+                        st.success(f"✅ Player '{clean_name}' successfully registered with ID #{new_id}!")
+                    except Exception as e:
+                        err_str = str(e)
+                        if "UNIQUE constraint failed" in err_str and "full_name" in err_str:
+                            st.warning(f"⚠️ A player named '{clean_name}' already exists in the database. Player names must be unique.")
+                        else:
+                            st.error(f"Failed to create player: {err_str}")
 
     # 3. UPDATE
     elif action == "Update Player":
@@ -163,31 +193,46 @@ def render_player_crud():
             submit_update = st.form_submit_button("Update Player Record", type="primary")
 
         if submit_update:
-            try:
-                stmt = """
-                UPDATE players
-                SET full_name = :name,
-                    team_id = :tid,
-                    country = :country,
-                    playing_role = :role,
-                    batting_style = :bat,
-                    bowling_style = :bowl,
-                    debut_year = :debut
-                WHERE player_id = :pid
-                """
-                execute_statement(stmt, {
-                    "pid": target_pid,
-                    "name": up_name.strip(),
-                    "tid": team_map.get(up_team),
-                    "country": up_country.strip(),
-                    "role": up_role,
-                    "bat": up_bat,
-                    "bowl": None if up_bowl == "None" else up_bowl.strip(),
-                    "debut": int(up_debut)
-                })
-                st.success(f"Record for '{up_name}' updated successfully!")
-            except Exception as e:
-                st.error(f"Update failed: {str(e)}")
+            clean_up_name = up_name.strip()
+            if not clean_up_name:
+                st.error("Player name cannot be empty.")
+            else:
+                dup_check = execute_query(
+                    "SELECT player_id FROM players WHERE LOWER(TRIM(full_name)) = LOWER(:name) AND player_id != :pid",
+                    {"name": clean_up_name, "pid": target_pid}
+                )
+                if not dup_check.empty:
+                    st.warning(f"⚠️ Another player named '{clean_up_name}' already exists in the database. Player names must be unique.")
+                else:
+                    try:
+                        stmt = """
+                        UPDATE players
+                        SET full_name = :name,
+                            team_id = :tid,
+                            country = :country,
+                            playing_role = :role,
+                            batting_style = :bat,
+                            bowling_style = :bowl,
+                            debut_year = :debut
+                        WHERE player_id = :pid
+                        """
+                        execute_statement(stmt, {
+                            "pid": target_pid,
+                            "name": clean_up_name,
+                            "tid": team_map.get(up_team),
+                            "country": up_country.strip(),
+                            "role": up_role,
+                            "bat": up_bat,
+                            "bowl": None if up_bowl == "None" else up_bowl.strip(),
+                            "debut": int(up_debut)
+                        })
+                        st.success(f"Record for '{clean_up_name}' updated successfully!")
+                    except Exception as e:
+                        err_str = str(e)
+                        if "UNIQUE constraint failed" in err_str and "full_name" in err_str:
+                            st.warning(f"⚠️ A player named '{clean_up_name}' already exists in the database. Player names must be unique.")
+                        else:
+                            st.error(f"Update failed: {err_str}")
 
     # 4. DELETE
     elif action == "Delete Player":
